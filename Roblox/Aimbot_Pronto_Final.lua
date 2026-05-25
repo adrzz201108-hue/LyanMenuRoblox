@@ -30,6 +30,12 @@ local Player = Players.LocalPlayer
 -- Check for native mouse movement
 local hasMouseMoverel = (mousemoverel ~= nil)
 
+-- [Mobile Support] Detection & Responsive Sizing
+local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
+local MenuWidth = isMobile and math.clamp(Camera.ViewportSize.X - 10, 320, 950) or 950
+local MenuHeight = isMobile and math.clamp(Camera.ViewportSize.Y - 40, 280, 580) or 580
+local SidebarWidth = isMobile and 100 or 170
+
 -- [Config] Runtime state table
 local Configs = {
     -- Aimbot
@@ -138,6 +144,329 @@ if ScreenGui.Parent == nil then
     ScreenGui.Parent = Player:WaitForChild("PlayerGui")
 end
 
+-- ================================================================
+-- [Loading Screen] Platform Detection & Animated Intro
+-- ================================================================
+task.spawn(function()
+    local LoadScreen = Instance.new("Frame")
+    LoadScreen.Size = UDim2.new(1, 0, 1, 0)
+    LoadScreen.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+    LoadScreen.BackgroundTransparency = 0
+    LoadScreen.BorderSizePixel = 0
+    LoadScreen.ZIndex = 200
+    LoadScreen.Parent = ScreenGui
+
+    -- Subtle animated scanline overlay
+    local scanline = Instance.new("Frame")
+    scanline.Size = UDim2.new(1, 0, 0, 2)
+    scanline.Position = UDim2.new(0, 0, 0, 0)
+    scanline.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
+    scanline.BackgroundTransparency = 0.7
+    scanline.BorderSizePixel = 0
+    scanline.ZIndex = 202
+    scanline.Parent = LoadScreen
+    task.spawn(function()
+        while LoadScreen.Parent do
+            TweenService:Create(scanline, TweenInfo.new(1.8, Enum.EasingStyle.Linear), {Position = UDim2.new(0, 0, 1, 0)}):Play()
+            task.wait(1.8)
+            scanline.Position = UDim2.new(0, 0, 0, 0)
+        end
+    end)
+
+    -- Center container
+    local Center = Instance.new("Frame")
+    Center.Size = UDim2.new(0, 400, 0, 320)
+    Center.Position = UDim2.new(0.5, -200, 0.5, -160)
+    Center.BackgroundTransparency = 1
+    Center.ZIndex = 201
+    Center.Parent = LoadScreen
+
+    -- Logo "LYAN"
+    local LoadLogo = Instance.new("TextLabel")
+    LoadLogo.Size = UDim2.new(1, 0, 0, 60)
+    LoadLogo.Position = UDim2.new(0, 0, 0, 20)
+    LoadLogo.BackgroundTransparency = 1
+    LoadLogo.Text = "LYAN"
+    LoadLogo.TextColor3 = Color3.fromRGB(239, 68, 68)
+    LoadLogo.Font = Enum.Font.GothamBlack
+    LoadLogo.TextSize = 48
+    LoadLogo.TextTransparency = 1
+    LoadLogo.TextStrokeTransparency = 0.5
+    LoadLogo.TextStrokeColor3 = Color3.new(0, 0, 0)
+    LoadLogo.ZIndex = 201
+    LoadLogo.Parent = Center
+
+    -- Subtitle "MENU"
+    local LoadSub = Instance.new("TextLabel")
+    LoadSub.Size = UDim2.new(1, 0, 0, 24)
+    LoadSub.Position = UDim2.new(0, 0, 0, 78)
+    LoadSub.BackgroundTransparency = 1
+    LoadSub.Text = "M  E  N  U"
+    LoadSub.TextColor3 = Color3.fromRGB(120, 120, 140)
+    LoadSub.Font = Enum.Font.GothamBold
+    LoadSub.TextSize = 14
+    LoadSub.TextTransparency = 1
+    LoadSub.ZIndex = 201
+    LoadSub.Parent = Center
+
+    -- Divider line
+    local Divider = Instance.new("Frame")
+    Divider.Size = UDim2.new(0, 0, 0, 1)
+    Divider.Position = UDim2.new(0.5, 0, 0, 115)
+    Divider.AnchorPoint = Vector2.new(0.5, 0)
+    Divider.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
+    Divider.BackgroundTransparency = 0.5
+    Divider.BorderSizePixel = 0
+    Divider.ZIndex = 201
+    Divider.Parent = Center
+
+    -- Platform detection info
+    local platformText = isMobile and "MOBILE" or "PC"
+    local platformIcon = isMobile and "\u{1F4F1}" or "\u{1F5A5}\u{FE0F}"
+    local platformColor = isMobile and Color3.fromRGB(59, 130, 246) or Color3.fromRGB(34, 197, 94)
+
+    -- Platform badge container
+    local PlatformBadge = Instance.new("Frame")
+    PlatformBadge.Size = UDim2.new(0, 180, 0, 44)
+    PlatformBadge.Position = UDim2.new(0.5, -90, 0, 130)
+    PlatformBadge.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
+    PlatformBadge.BackgroundTransparency = 1
+    PlatformBadge.BorderSizePixel = 0
+    PlatformBadge.ZIndex = 201
+    PlatformBadge.Parent = Center
+    Instance.new("UICorner", PlatformBadge).CornerRadius = UDim.new(0, 8)
+    local badgeStroke = Instance.new("UIStroke", PlatformBadge)
+    badgeStroke.Color = platformColor
+    badgeStroke.Thickness = 1.5
+    badgeStroke.Transparency = 1
+
+    -- Platform icon
+    local PlatformIconLbl = Instance.new("TextLabel")
+    PlatformIconLbl.Size = UDim2.new(0, 40, 1, 0)
+    PlatformIconLbl.Position = UDim2.new(0, 8, 0, 0)
+    PlatformIconLbl.BackgroundTransparency = 1
+    PlatformIconLbl.Text = platformIcon
+    PlatformIconLbl.TextSize = 20
+    PlatformIconLbl.Font = Enum.Font.GothamBold
+    PlatformIconLbl.TextTransparency = 1
+    PlatformIconLbl.ZIndex = 202
+    PlatformIconLbl.Parent = PlatformBadge
+
+    -- "PLATAFORMA DETECTADA"
+    local PlatformSmall = Instance.new("TextLabel")
+    PlatformSmall.Size = UDim2.new(1, -52, 0, 14)
+    PlatformSmall.Position = UDim2.new(0, 48, 0, 5)
+    PlatformSmall.BackgroundTransparency = 1
+    PlatformSmall.Text = "PLATAFORMA DETECTADA"
+    PlatformSmall.TextColor3 = Color3.fromRGB(120, 120, 140)
+    PlatformSmall.Font = Enum.Font.Gotham
+    PlatformSmall.TextSize = 9
+    PlatformSmall.TextTransparency = 1
+    PlatformSmall.TextXAlignment = Enum.TextXAlignment.Left
+    PlatformSmall.ZIndex = 202
+    PlatformSmall.Parent = PlatformBadge
+
+    -- Platform name (MOBILE or PC)
+    local PlatformName = Instance.new("TextLabel")
+    PlatformName.Size = UDim2.new(1, -52, 0, 20)
+    PlatformName.Position = UDim2.new(0, 48, 0, 20)
+    PlatformName.BackgroundTransparency = 1
+    PlatformName.Text = platformText
+    PlatformName.TextColor3 = platformColor
+    PlatformName.Font = Enum.Font.GothamBlack
+    PlatformName.TextSize = 16
+    PlatformName.TextTransparency = 1
+    PlatformName.TextXAlignment = Enum.TextXAlignment.Left
+    PlatformName.ZIndex = 202
+    PlatformName.Parent = PlatformBadge
+
+    -- System info labels
+    local infoLines = {
+        {text = "EXECUTOR", value = (identifyexecutor and identifyexecutor() or "Unknown"), delay = 0.15},
+        {text = "RESOLUÇÃO", value = math.floor(Camera.ViewportSize.X) .. "x" .. math.floor(Camera.ViewportSize.Y), delay = 0.25},
+        {text = "UI MODE", value = isMobile and "TOUCH OTIMIZADO" or "MOUSE & TECLADO", delay = 0.35},
+    }
+
+    local InfoContainer = Instance.new("Frame")
+    InfoContainer.Size = UDim2.new(0, 300, 0, 70)
+    InfoContainer.Position = UDim2.new(0.5, -150, 0, 185)
+    InfoContainer.BackgroundTransparency = 1
+    InfoContainer.ZIndex = 201
+    InfoContainer.Parent = Center
+
+    local infoLabels = {}
+    for i, info in ipairs(infoLines) do
+        local row = Instance.new("Frame")
+        row.Size = UDim2.new(1, 0, 0, 18)
+        row.Position = UDim2.new(0, 0, 0, (i - 1) * 22)
+        row.BackgroundTransparency = 1
+        row.ZIndex = 201
+        row.Parent = InfoContainer
+
+        local keyLbl = Instance.new("TextLabel")
+        keyLbl.Size = UDim2.new(0.45, 0, 1, 0)
+        keyLbl.BackgroundTransparency = 1
+        keyLbl.Text = info.text
+        keyLbl.TextColor3 = Color3.fromRGB(80, 80, 100)
+        keyLbl.Font = Enum.Font.GothamSemibold
+        keyLbl.TextSize = 10
+        keyLbl.TextTransparency = 1
+        keyLbl.TextXAlignment = Enum.TextXAlignment.Right
+        keyLbl.ZIndex = 201
+        keyLbl.Parent = row
+
+        local valLbl = Instance.new("TextLabel")
+        valLbl.Size = UDim2.new(0.55, -10, 1, 0)
+        valLbl.Position = UDim2.new(0.45, 10, 0, 0)
+        valLbl.BackgroundTransparency = 1
+        valLbl.Text = info.value
+        valLbl.TextColor3 = Color3.fromRGB(200, 200, 210)
+        valLbl.Font = Enum.Font.GothamBold
+        valLbl.TextSize = 10
+        valLbl.TextTransparency = 1
+        valLbl.TextXAlignment = Enum.TextXAlignment.Left
+        valLbl.ZIndex = 201
+        valLbl.Parent = row
+
+        table.insert(infoLabels, {key = keyLbl, val = valLbl, delay = info.delay})
+    end
+
+    -- Loading bar
+    local BarBg = Instance.new("Frame")
+    BarBg.Size = UDim2.new(0, 260, 0, 4)
+    BarBg.Position = UDim2.new(0.5, -130, 0, 275)
+    BarBg.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
+    BarBg.BorderSizePixel = 0
+    BarBg.ZIndex = 201
+    BarBg.Parent = Center
+    Instance.new("UICorner", BarBg).CornerRadius = UDim.new(1, 0)
+
+    local BarFill = Instance.new("Frame")
+    BarFill.Size = UDim2.new(0, 0, 1, 0)
+    BarFill.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
+    BarFill.BorderSizePixel = 0
+    BarFill.ZIndex = 202
+    BarFill.Parent = BarBg
+    Instance.new("UICorner", BarFill).CornerRadius = UDim.new(1, 0)
+
+    -- Glow effect on bar
+    local BarGlow = Instance.new("Frame")
+    BarGlow.Size = UDim2.new(0, 30, 0, 4)
+    BarGlow.BackgroundColor3 = Color3.fromRGB(255, 150, 150)
+    BarGlow.BackgroundTransparency = 0.3
+    BarGlow.BorderSizePixel = 0
+    BarGlow.ZIndex = 203
+    BarGlow.Parent = BarFill
+    BarGlow.Position = UDim2.new(1, -30, 0, 0)
+    Instance.new("UICorner", BarGlow).CornerRadius = UDim.new(1, 0)
+
+    -- Status text
+    local StatusLbl = Instance.new("TextLabel")
+    StatusLbl.Size = UDim2.new(0, 260, 0, 18)
+    StatusLbl.Position = UDim2.new(0.5, -130, 0, 284)
+    StatusLbl.BackgroundTransparency = 1
+    StatusLbl.Text = "INICIALIZANDO..."
+    StatusLbl.TextColor3 = Color3.fromRGB(80, 80, 100)
+    StatusLbl.Font = Enum.Font.Gotham
+    StatusLbl.TextSize = 10
+    StatusLbl.ZIndex = 201
+    StatusLbl.Parent = Center
+
+    -- Version tag bottom
+    local VerLbl = Instance.new("TextLabel")
+    VerLbl.Size = UDim2.new(1, 0, 0, 20)
+    VerLbl.Position = UDim2.new(0, 0, 1, -30)
+    VerLbl.BackgroundTransparency = 1
+    VerLbl.Text = "v6.0 | UNIVERSAL MOD MENU"
+    VerLbl.TextColor3 = Color3.fromRGB(50, 50, 60)
+    VerLbl.Font = Enum.Font.Gotham
+    VerLbl.TextSize = 10
+    VerLbl.ZIndex = 201
+    VerLbl.Parent = LoadScreen
+
+    -- ======== ANIMATION SEQUENCE ========
+    local fadeTween = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+    local fastFade = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+    -- Phase 1: Logo fade in (0.0s)
+    task.wait(0.3)
+    TweenService:Create(LoadLogo, TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
+    task.wait(0.4)
+    TweenService:Create(LoadSub, fadeTween, {TextTransparency = 0}):Play()
+
+    -- Phase 2: Divider expands (0.7s)
+    task.wait(0.3)
+    TweenService:Create(Divider, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 200, 0, 1)}):Play()
+    StatusLbl.Text = "DETECTANDO PLATAFORMA..."
+
+    -- Phase 3: Platform badge appears (1.2s)
+    task.wait(0.5)
+    TweenService:Create(PlatformBadge, fastFade, {BackgroundTransparency = 0}):Play()
+    TweenService:Create(badgeStroke, fastFade, {Transparency = 0}):Play()
+    TweenService:Create(PlatformIconLbl, fastFade, {TextTransparency = 0}):Play()
+    TweenService:Create(PlatformSmall, fastFade, {TextTransparency = 0}):Play()
+    task.wait(0.2)
+
+    -- Platform name reveal with color pulse
+    TweenService:Create(PlatformName, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
+    TweenService:Create(badgeStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Color = Color3.fromRGB(255, 255, 255)}):Play()
+    task.wait(0.3)
+    TweenService:Create(badgeStroke, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {Color = platformColor}):Play()
+    StatusLbl.Text = isMobile and "MODO MOBILE ATIVADO" or "MODO PC ATIVADO"
+
+    -- Phase 4: System info lines fade in sequentially (1.7s)
+    for _, info in ipairs(infoLabels) do
+        task.wait(info.delay)
+        TweenService:Create(info.key, fastFade, {TextTransparency = 0}):Play()
+        TweenService:Create(info.val, fastFade, {TextTransparency = 0}):Play()
+    end
+
+    -- Phase 5: Loading bar fills (2.2s)
+    StatusLbl.Text = "CARREGANDO MÓDULOS..."
+    task.wait(0.2)
+    TweenService:Create(BarFill, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.3, 0, 1, 0)}):Play()
+    task.wait(0.5)
+    StatusLbl.Text = "CARREGANDO GUI..."
+    TweenService:Create(BarFill, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.6, 0, 1, 0)}):Play()
+    task.wait(0.4)
+    StatusLbl.Text = "APLICANDO " .. (isMobile and "UI MOBILE" or "UI DESKTOP") .. "..."
+    TweenService:Create(BarFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.85, 0, 1, 0)}):Play()
+    task.wait(0.4)
+    StatusLbl.Text = "PRONTO!"
+    StatusLbl.TextColor3 = Color3.fromRGB(34, 197, 94)
+    TweenService:Create(BarFill, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 1, 0)}):Play()
+    TweenService:Create(BarFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {BackgroundColor3 = Color3.fromRGB(34, 197, 94)}):Play()
+
+    -- Phase 6: Fade out loading screen, reveal menu (3.5s)
+    task.wait(0.6)
+    TweenService:Create(LoadScreen, TweenInfo.new(0.6, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
+    for _, desc in pairs(LoadScreen:GetDescendants()) do
+        if desc:IsA("TextLabel") then
+            TweenService:Create(desc, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
+        elseif desc:IsA("Frame") then
+            TweenService:Create(desc, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
+        end
+        if desc:IsA("UIStroke") then
+            TweenService:Create(desc, TweenInfo.new(0.4), {Transparency = 1}):Play()
+        end
+    end
+
+    task.wait(0.6)
+    LoadScreen:Destroy()
+
+    -- Show the main menu with entrance animation
+    isMenuOpen = true
+    MainFrame.Visible = true
+    MainFrame.Size = UDim2.new(0, MenuWidth * 0.8, 0, MenuHeight * 0.8)
+    MainFrame.Position = UDim2.new(0.5, -(MenuWidth * 0.8)/2, 0.5, -(MenuHeight * 0.8)/2)
+    MainFrame.BackgroundTransparency = 1
+    TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
+        Size = UDim2.new(0, MenuWidth, 0, MenuHeight),
+        Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2),
+        BackgroundTransparency = 0.4
+    }):Play()
+end)
+
 -- [Solara Fallback] FOV Circle without Drawing API
 local NativeFOVRing = Instance.new("Frame")
 NativeFOVRing.BackgroundTransparency = 1
@@ -228,7 +557,7 @@ end
 
 local MainFrame = Instance.new("Frame")
 
-local isMenuOpen = true
+local isMenuOpen = false
 UserInputService.InputBegan:Connect(function(input, gP)
     local bindName = Configs.MenuKeybind
     if typeof(bindName) == "string" and bindName ~= "" then
@@ -237,9 +566,9 @@ UserInputService.InputBegan:Connect(function(input, gP)
             isMenuOpen = not isMenuOpen
             if isMenuOpen then
                 MainFrame.Visible = true
-                TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -475, 0.5, -290), Size = UDim2.new(0, 950, 0, 580)}):Play()
+                TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2), Size = UDim2.new(0, MenuWidth, 0, MenuHeight)}):Play()
             else
-                local tw = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -420, 0.5, -240), Size = UDim2.new(0, 840, 0, 480)})
+                local tw = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -MenuWidth*0.45, 0.5, -MenuHeight*0.42), Size = UDim2.new(0, MenuWidth*0.9, 0, MenuHeight*0.85)})
                 tw:Play()
                 tw.Completed:Connect(function() if not isMenuOpen then MainFrame.Visible = false end end)
             end
@@ -252,14 +581,191 @@ UserInputService.InputBegan:Connect(function(input, gP)
         end
     end
 end)
-MainFrame.Size = UDim2.new(0, 950, 0, 580)
-MainFrame.Position = UDim2.new(0.5, -475, 0.5, -290)
+MainFrame.Size = UDim2.new(0, MenuWidth, 0, MenuHeight)
+MainFrame.Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2)
 MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 MainFrame.BackgroundTransparency = 0.4
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
+MainFrame.Visible = false
 MainFrame.Parent = ScreenGui
+
+-- ================================================================
+-- [Mobile Support] Floating Buttons
+-- ================================================================
+local mobileAimHeld = false
+
+if isMobile then
+    -- Floating toggle button (draggable circle)
+    local MobileToggleBtn = Instance.new("TextButton")
+    MobileToggleBtn.Size = UDim2.new(0, 48, 0, 48)
+    MobileToggleBtn.Position = UDim2.new(0, 8, 0.4, 0)
+    MobileToggleBtn.BackgroundColor3 = Colors.Accent
+    MobileToggleBtn.BackgroundTransparency = 0.25
+    MobileToggleBtn.Text = "L"
+    MobileToggleBtn.TextColor3 = Color3.new(1, 1, 1)
+    MobileToggleBtn.Font = Enum.Font.GothamBlack
+    MobileToggleBtn.TextSize = 20
+    MobileToggleBtn.BorderSizePixel = 0
+    MobileToggleBtn.ZIndex = 50
+    MobileToggleBtn.Active = true
+    MobileToggleBtn.Draggable = true
+    MobileToggleBtn.Parent = ScreenGui
+    Instance.new("UICorner", MobileToggleBtn).CornerRadius = UDim.new(1, 0)
+    local toggleStroke = Instance.new("UIStroke", MobileToggleBtn)
+    toggleStroke.Color = Color3.fromRGB(255, 255, 255)
+    toggleStroke.Thickness = 1.5
+    toggleStroke.Transparency = 0.5
+
+    MobileToggleBtn.MouseButton1Click:Connect(function()
+        isMenuOpen = not isMenuOpen
+        if isMenuOpen then
+            MainFrame.Visible = true
+            TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2), Size = UDim2.new(0, MenuWidth, 0, MenuHeight)}):Play()
+            TweenService:Create(MobileToggleBtn, TweenPresets.Fast, {BackgroundTransparency = 0.25}):Play()
+            MobileToggleBtn.Text = "X"
+        else
+            local tw = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -MenuWidth*0.45, 0.5, -MenuHeight*0.42), Size = UDim2.new(0, MenuWidth*0.9, 0, MenuHeight*0.85)})
+            tw:Play()
+            tw.Completed:Connect(function() if not isMenuOpen then MainFrame.Visible = false end end)
+            TweenService:Create(MobileToggleBtn, TweenPresets.Fast, {BackgroundTransparency = 0.5}):Play()
+            MobileToggleBtn.Text = "L"
+        end
+    end)
+
+    -- Floating Aimbot activation button (hold to aim)
+    local MobileAimBtn = Instance.new("TextButton")
+    MobileAimBtn.Size = UDim2.new(0, 64, 0, 64)
+    MobileAimBtn.Position = UDim2.new(1, -74, 0.55, 0)
+    MobileAimBtn.BackgroundColor3 = Colors.Accent
+    MobileAimBtn.BackgroundTransparency = 0.5
+    MobileAimBtn.Text = "AIM"
+    MobileAimBtn.TextColor3 = Color3.new(1, 1, 1)
+    MobileAimBtn.Font = Enum.Font.GothamBlack
+    MobileAimBtn.TextSize = 14
+    MobileAimBtn.BorderSizePixel = 0
+    MobileAimBtn.ZIndex = 50
+    MobileAimBtn.Active = true
+    MobileAimBtn.Draggable = true
+    MobileAimBtn.Parent = ScreenGui
+    Instance.new("UICorner", MobileAimBtn).CornerRadius = UDim.new(1, 0)
+    local aimStroke = Instance.new("UIStroke", MobileAimBtn)
+    aimStroke.Color = Color3.fromRGB(255, 255, 255)
+    aimStroke.Thickness = 2
+    aimStroke.Transparency = 0.4
+
+    MobileAimBtn.MouseButton1Down:Connect(function()
+        mobileAimHeld = true
+        TweenService:Create(MobileAimBtn, TweenPresets.Fast, {BackgroundTransparency = 0.1, Size = UDim2.new(0, 70, 0, 70)}):Play()
+        TweenService:Create(aimStroke, TweenPresets.Fast, {Color = Color3.fromRGB(255, 100, 100)}):Play()
+    end)
+    MobileAimBtn.MouseButton1Up:Connect(function()
+        mobileAimHeld = false
+        TweenService:Create(MobileAimBtn, TweenPresets.Fast, {BackgroundTransparency = 0.5, Size = UDim2.new(0, 64, 0, 64)}):Play()
+        TweenService:Create(aimStroke, TweenPresets.Fast, {Color = Color3.fromRGB(255, 255, 255)}):Play()
+    end)
+    -- Also release when touch ends anywhere (safety)
+    UserInputService.InputEnded:Connect(function(input)
+        if input.UserInputType == Enum.UserInputType.Touch then
+            if mobileAimHeld then
+                mobileAimHeld = false
+                TweenService:Create(MobileAimBtn, TweenPresets.Fast, {BackgroundTransparency = 0.5, Size = UDim2.new(0, 64, 0, 64)}):Play()
+                TweenService:Create(aimStroke, TweenPresets.Fast, {Color = Color3.fromRGB(255, 255, 255)}):Play()
+            end
+        end
+    end)
+
+    -- Floating Fly button (quick toggle)
+    local MobileFlyBtn = Instance.new("TextButton")
+    MobileFlyBtn.Size = UDim2.new(0, 48, 0, 48)
+    MobileFlyBtn.Position = UDim2.new(1, -58, 0.55, 80)
+    MobileFlyBtn.BackgroundColor3 = Color3.fromRGB(59, 130, 246)
+    MobileFlyBtn.BackgroundTransparency = 0.5
+    MobileFlyBtn.Text = "FLY"
+    MobileFlyBtn.TextColor3 = Color3.new(1, 1, 1)
+    MobileFlyBtn.Font = Enum.Font.GothamBlack
+    MobileFlyBtn.TextSize = 11
+    MobileFlyBtn.BorderSizePixel = 0
+    MobileFlyBtn.ZIndex = 50
+    MobileFlyBtn.Active = true
+    MobileFlyBtn.Draggable = true
+    MobileFlyBtn.Parent = ScreenGui
+    Instance.new("UICorner", MobileFlyBtn).CornerRadius = UDim.new(1, 0)
+    Instance.new("UIStroke", MobileFlyBtn).Color = Color3.fromRGB(255, 255, 255)
+
+    MobileFlyBtn.MouseButton1Click:Connect(function()
+        Configs.Fly = not Configs.Fly
+        if Configs.Fly then
+            MobileFlyBtn.BackgroundTransparency = 0.1
+            showToast("FLY", "ENABLED", true)
+        else
+            MobileFlyBtn.BackgroundTransparency = 0.5
+            showToast("FLY", "DISABLED", false)
+        end
+        saveConfig()
+    end)
+
+    -- Floating ESP toggle button
+    local MobileEspBtn = Instance.new("TextButton")
+    MobileEspBtn.Size = UDim2.new(0, 48, 0, 48)
+    MobileEspBtn.Position = UDim2.new(1, -58, 0.55, 140)
+    MobileEspBtn.BackgroundColor3 = Color3.fromRGB(34, 197, 94)
+    MobileEspBtn.BackgroundTransparency = 0.5
+    MobileEspBtn.Text = "ESP"
+    MobileEspBtn.TextColor3 = Color3.new(1, 1, 1)
+    MobileEspBtn.Font = Enum.Font.GothamBlack
+    MobileEspBtn.TextSize = 11
+    MobileEspBtn.BorderSizePixel = 0
+    MobileEspBtn.ZIndex = 50
+    MobileEspBtn.Active = true
+    MobileEspBtn.Draggable = true
+    MobileEspBtn.Parent = ScreenGui
+    Instance.new("UICorner", MobileEspBtn).CornerRadius = UDim.new(1, 0)
+    Instance.new("UIStroke", MobileEspBtn).Color = Color3.fromRGB(255, 255, 255)
+
+    MobileEspBtn.MouseButton1Click:Connect(function()
+        Configs.ESP = not Configs.ESP
+        if Configs.ESP then
+            MobileEspBtn.BackgroundTransparency = 0.1
+            showToast("ESP", "ENABLED", true)
+        else
+            MobileEspBtn.BackgroundTransparency = 0.5
+            showToast("ESP", "DISABLED", false)
+        end
+        saveConfig()
+    end)
+
+    -- Floating Speed toggle button
+    local MobileSpeedBtn = Instance.new("TextButton")
+    MobileSpeedBtn.Size = UDim2.new(0, 48, 0, 48)
+    MobileSpeedBtn.Position = UDim2.new(1, -58, 0.55, 200)
+    MobileSpeedBtn.BackgroundColor3 = Color3.fromRGB(168, 85, 247)
+    MobileSpeedBtn.BackgroundTransparency = 0.5
+    MobileSpeedBtn.Text = "SPD"
+    MobileSpeedBtn.TextColor3 = Color3.new(1, 1, 1)
+    MobileSpeedBtn.Font = Enum.Font.GothamBlack
+    MobileSpeedBtn.TextSize = 11
+    MobileSpeedBtn.BorderSizePixel = 0
+    MobileSpeedBtn.ZIndex = 50
+    MobileSpeedBtn.Active = true
+    MobileSpeedBtn.Draggable = true
+    MobileSpeedBtn.Parent = ScreenGui
+    Instance.new("UICorner", MobileSpeedBtn).CornerRadius = UDim.new(1, 0)
+    Instance.new("UIStroke", MobileSpeedBtn).Color = Color3.fromRGB(255, 255, 255)
+
+    MobileSpeedBtn.MouseButton1Click:Connect(function()
+        Configs.WalkSpeedActive = not Configs.WalkSpeedActive
+        if Configs.WalkSpeedActive then
+            MobileSpeedBtn.BackgroundTransparency = 0.1
+            showToast("SPEED", "ENABLED (" .. Configs.WalkSpeedValue .. ")", true)
+        else
+            MobileSpeedBtn.BackgroundTransparency = 0.5
+            showToast("SPEED", "DISABLED", false)
+        end
+        saveConfig()
+    end)
+end
 
 -- Liquid Glass: subtle inner glow layer
 local glassInner = Instance.new("Frame")
@@ -277,7 +783,7 @@ outline.Thickness = 1.5
 Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
 
 local Sidebar = Instance.new("Frame")
-Sidebar.Size = UDim2.new(0, 170, 1, 0)
+Sidebar.Size = UDim2.new(0, SidebarWidth, 1, 0)
 Sidebar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Sidebar.BackgroundTransparency = 0.3
 Sidebar.BorderSizePixel = 0
@@ -299,7 +805,7 @@ LogoLabel.BackgroundTransparency = 1
 LogoLabel.Text = "LYAN"
 LogoLabel.TextColor3 = Colors.Accent
 LogoLabel.Font = Enum.Font.GothamBlack
-LogoLabel.TextSize = 24
+LogoLabel.TextSize = isMobile and 18 or 24
 LogoLabel.TextStrokeTransparency = 0.65
 LogoLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
 LogoLabel.Parent = Sidebar
@@ -311,7 +817,7 @@ LogoSub.BackgroundTransparency = 1
 LogoSub.Text = "M E N U"
 LogoSub.TextColor3 = Colors.TextDim
 LogoSub.Font = Enum.Font.GothamBold
-LogoSub.TextSize = 10
+LogoSub.TextSize = isMobile and 8 or 10
 LogoSub.TextStrokeTransparency = 0.7
 LogoSub.TextStrokeColor3 = Color3.new(0, 0, 0)
 LogoSub.Parent = Sidebar
@@ -328,8 +834,8 @@ TabLayout.Padding = UDim.new(0, 8)
 TabLayout.Parent = TabContainer
 
 local ContentArea = Instance.new("Frame")
-ContentArea.Size = UDim2.new(1, -180, 1, 0)
-ContentArea.Position = UDim2.new(0, 180, 0, 0)
+ContentArea.Size = UDim2.new(1, -(SidebarWidth + 10), 1, 0)
+ContentArea.Position = UDim2.new(0, SidebarWidth + 10, 0, 0)
 ContentArea.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 ContentArea.BackgroundTransparency = 0.4
 ContentArea.BorderSizePixel = 0
@@ -343,7 +849,7 @@ Breadcrumb.BackgroundTransparency = 1
 Breadcrumb.Text = "LYAN > AIMBOT"
 Breadcrumb.TextColor3 = Colors.TextDim
 Breadcrumb.Font = Enum.Font.GothamSemibold
-Breadcrumb.TextSize = 14
+Breadcrumb.TextSize = isMobile and 11 or 14
 Breadcrumb.TextStrokeTransparency = 0.75
 Breadcrumb.TextStrokeColor3 = Color3.new(0, 0, 0)
 Breadcrumb.TextXAlignment = Enum.TextXAlignment.Left
@@ -846,7 +1352,7 @@ local function createTab(pageName, targetPage)
     btnWrapper.Name = string.format("%02d_%s", tabIndex, pageName)
     btnWrapper.LayoutOrder = tabIndex
     tabIndex = tabIndex + 1
-    btnWrapper.Size = UDim2.new(1, 0, 0, 38)
+    btnWrapper.Size = UDim2.new(1, 0, 0, isMobile and 30 or 38)
     btnWrapper.BackgroundTransparency = 1
     btnWrapper.Text = ""
     btnWrapper.Parent = TabContainer
@@ -858,7 +1364,7 @@ local function createTab(pageName, targetPage)
     titleLbl.Text = string.upper(pageName)
     titleLbl.TextColor3 = Colors.TextDim
     titleLbl.Font = Enum.Font.GothamBold
-    titleLbl.TextSize = 14
+    titleLbl.TextSize = isMobile and 11 or 14
     titleLbl.TextStrokeTransparency = 0.7
     titleLbl.TextStrokeColor3 = Color3.new(0, 0, 0)
     titleLbl.TextXAlignment = Enum.TextXAlignment.Left
@@ -2074,6 +2580,7 @@ local function getClosestPlayer()
 end
 
 local function isHotkeyHeld()
+    if isMobile and mobileAimHeld then return true end
     local key = Configs.Hotkey
     if key == "MouseButton1" then return UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1)
     elseif key == "MouseButton2" then return UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton2)
@@ -2225,12 +2732,20 @@ RunService.RenderStepped:Connect(function(dt)
                 flyGyro.P = 10000
             end
             local moveDir = Vector3.new()
-            if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + Camera.CFrame.LookVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - Camera.CFrame.LookVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - Camera.CFrame.RightVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + Camera.CFrame.RightVector end
-            if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir = moveDir + Vector3.new(0, 1, 0) end
-            if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir = moveDir - Vector3.new(0, 1, 0) end
+            if isMobile then
+                local md = hum.MoveDirection
+                if md.Magnitude > 0.1 then
+                    moveDir = moveDir + Vector3.new(md.X, 0, md.Z).Unit
+                end
+                if UserInputService.JumpRequest then moveDir = moveDir + Vector3.new(0, 0.6, 0) end
+            else
+                if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + Camera.CFrame.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - Camera.CFrame.LookVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - Camera.CFrame.RightVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + Camera.CFrame.RightVector end
+                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir = moveDir + Vector3.new(0, 1, 0) end
+                if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir = moveDir - Vector3.new(0, 1, 0) end
+            end
             flyVel.Velocity = moveDir * Configs.FlySpeed
             flyGyro.CFrame = Camera.CFrame
         elseif flyingState then
@@ -2258,12 +2773,19 @@ RunService.RenderStepped:Connect(function(dt)
                     cg.D = 1000
                 end
                 local moveDir = Vector3.new()
-                if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + Camera.CFrame.LookVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - Camera.CFrame.LookVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - Camera.CFrame.RightVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + Camera.CFrame.RightVector end
-                if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir = moveDir + Vector3.new(0, 1, 0) end
-                if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir = moveDir - Vector3.new(0, 1, 0) end
+                if isMobile then
+                    local md = hum.MoveDirection
+                    if md.Magnitude > 0.1 then
+                        moveDir = moveDir + Vector3.new(md.X, 0, md.Z).Unit
+                    end
+                else
+                    if UserInputService:IsKeyDown(Enum.KeyCode.W) then moveDir = moveDir + Camera.CFrame.LookVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.S) then moveDir = moveDir - Camera.CFrame.LookVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.A) then moveDir = moveDir - Camera.CFrame.RightVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.D) then moveDir = moveDir + Camera.CFrame.RightVector end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir = moveDir + Vector3.new(0, 1, 0) end
+                    if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir = moveDir - Vector3.new(0, 1, 0) end
+                end
                 seat.CarFlyVel.Velocity = moveDir * Configs.CarFlySpeed
                 local _, yRot, _ = Camera.CFrame:ToEulerAnglesYXZ()
                 seat.CarFlyGyro.CFrame = CFrame.Angles(0, yRot, 0)
@@ -2285,13 +2807,15 @@ RunService.RenderStepped:Connect(function(dt)
             end
 
             -- Car Speed
-            if Configs.CarSpeed and Configs.CarSpeedValue > 0 and UserInputService:IsKeyDown(Enum.KeyCode.W) then
+            local isAccelerating = isMobile and (hum.MoveDirection.Magnitude > 0.1) or UserInputService:IsKeyDown(Enum.KeyCode.W)
+            if Configs.CarSpeed and Configs.CarSpeedValue > 0 and isAccelerating then
                 -- Adiciona velocidade mantendo a física do jogo em vez de sobrescrever
                 seat.AssemblyLinearVelocity = seat.AssemblyLinearVelocity + (seat.CFrame.LookVector * (Configs.CarSpeedValue / 5))
             end
 
             -- Car Brake
-            if Configs.CarBrake and UserInputService:IsKeyDown(Enum.KeyCode.S) then
+            local isBraking = isMobile and false or UserInputService:IsKeyDown(Enum.KeyCode.S)
+            if Configs.CarBrake and isBraking then
                 seat.AssemblyLinearVelocity = Vector3.new(0, seat.AssemblyLinearVelocity.Y, 0)
             end
 
