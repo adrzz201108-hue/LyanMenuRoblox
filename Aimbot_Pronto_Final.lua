@@ -1880,7 +1880,10 @@ btnReset.MouseLeave:Connect(function() TweenService:Create(btnReset, TweenPreset
 -- Cf2: UTILITY
 local Cf2 = createPanel(PgConfig, "UTILITY & SERVER", UDim2.new(0.45, 0, 0, 480), UDim2.new(0.5, 0, 0.05, 0))
 createSwitch(Cf2, "WATERMARK", "FPS/PING/NICK NO CANTO", "Watermark")
-createSwitch(Cf2, "MODO STREAM (OBS BYPASS)", "OCULTA TODOS OS VISUAIS", "StreamMode")
+createSwitch(Cf2, "MODO STREAM (OBS BYPASS)", "OCULTA TODOS OS VISUAIS", "StreamMode", function(state)
+    ScreenGui.Enabled = not state
+    if state then showToast("Stream Mode", "Menu oculto! Pressione a tecla configurada para voltar.", true) end
+end)
 createHotkey(Cf2, "TECLA MODO STREAM", "StreamModeKey")
 createSwitch(Cf2, "ANTI SCREENSHOT", "ESCONDE UI NO PRTSCR/F12", "AntiScreenshot")
 createSwitch(Cf2, "LOG DE KILLS", "PRINT NO CONSOLE", "LogKills")
@@ -3381,10 +3384,11 @@ UserInputService.InputBegan:Connect(function(input, gP)
         if not wasStream then
             Configs.StreamMode = true
             ScreenGui.Enabled = false
-            showToast("Anti-Screenshot", "UI Oculta temporariamente para foto/gravação!", true)
+            -- Pular a notificação Toast no print pra garantir que a tela fique 100% limpa pra foto real
             task.delay(1.5, function()
                 Configs.StreamMode = false
                 ScreenGui.Enabled = isMenuOpen
+                showToast("Anti-Screenshot", "Interface foi restaurada após a captura.", true)
             end)
         end
     end
