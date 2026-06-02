@@ -82,8 +82,10 @@ local Configs = {
     AntiAfk = false, AntiVoid = false, SpiderWalk = false, AutoBhop = false,
     Dash = false, DashKey = "Q", DashForce = 120,
     StaminaBypass = false, MagNet = false, MagNetRadius = 20,
+    WalkOnWater = false, GravityMod = false, GravityValue = 196.2,
+    AutoClicker = false,
     -- Cars Extra
-    CarTpToPlayer = false, AntiFlip = false, CarStrong = false, CarSuspension = false, AntiFall = false,
+    CarTpToPlayer = false, AntiFlip = false, CarStrong = false, CarSuspension = false, AntiFall = false, BringCars = false,
     -- Trolls Extra
     EmoteSpam = false, BringPlayer = false, FreezePlayer = false,
     RainbowChar = false, SizeChar = false, CharSize = 1.0,
@@ -1531,7 +1533,7 @@ createSlider(P2, "VELOCIDADE VOO", 10, 300, "FlySpeed")
 createSwitch(P2, "MODO DEUS", "VIDA INFINITA", "GodMode")
 
 -- P3: EXPLOITS EXTRA
-local P3 = createPanel(PgExploits, "EXTRAS", UDim2.new(0.93, 0, 0, 380), UDim2.new(0.02, 0, 0, 330))
+local P3 = createPanel(PgExploits, "EXTRAS", UDim2.new(0.93, 0, 0, 520), UDim2.new(0.02, 0, 0, 330))
 createSwitch(P3, "ANTI AFK", "NUNCA KICK POR AFK", "AntiAfk")
 createSwitch(P3, "ANTI VOID", "VOLTA AO CAIR DO MAPA", "AntiVoid")
 createSwitch(P3, "SPIDER WALK", "ANDAR EM PAREDES", "SpiderWalk")
@@ -1542,6 +1544,10 @@ createSlider(P3, "FORÇA DO DASH", 50, 500, "DashForce")
 createSwitch(P3, "STAMINA INFINITA", "ZERA VALORES DE STAMINA", "StaminaBypass")
 createSwitch(P3, "MAG-NET", "PUXAR ITENS PRÓXIMOS", "MagNet")
 createSlider(P3, "RAIO DO MAG-NET", 5, 80, "MagNetRadius")
+createSwitch(P3, "AUTO CLICKER", "CLIQUES RÁPIDOS CONSTANTES", "AutoClicker")
+createSwitch(P3, "ANDAR NA ÁGUA", "JESUS MODE", "WalkOnWater")
+createSwitch(P3, "MUDAR GRAVIDADE", "REDUZ GRAVIDADE", "GravityMod")
+createSlider(P3, "FORÇA GRAVIDADE", 0, 196, "GravityValue")
 
 -- Troll Tab
 -- T1: title(30) + switch(34) + slider(40) + 3 switches(34*3=102) + slider(40) + padding(12*5=60) + margins = ~360
@@ -1593,7 +1599,7 @@ createSwitch(Ca2, "DESTRANCAR PERTO", "AURA DESBLOQUEIO", "UnlockAura")
 createSwitch(Ca2, "TRANCAR PERTO", "AURA DE BLOQUEIO", "LockAura")
 
 -- Ca3: CARROS PRO
-local Ca3 = createPanel(PgCars, "CARROS PRO", UDim2.new(0.93, 0, 0, 220), UDim2.new(0.02, 0, 0, 380))
+local Ca3 = createPanel(PgCars, "CARROS PRO", UDim2.new(0.93, 0, 0, 260), UDim2.new(0.02, 0, 0, 380))
 createButton(Ca3, "TP CARRO AO ALVO", "TELEPORTAR VEÍCULO PRO TARGET", function()
     local hum = Player.Character and Player.Character:FindFirstChildOfClass("Humanoid")
     if not (hum and hum.SeatPart) then showToast("CAR TP", "Você não está em um veículo", false) return end
@@ -1610,6 +1616,7 @@ createButton(Ca3, "TP CARRO AO ALVO", "TELEPORTAR VEÍCULO PRO TARGET", function
         showToast("CAR TP", "Levado pro " .. target.DisplayName, true)
     end
 end)
+createSwitch(Ca3, "PUXAR CARROS (MAGNET)", "TRAZ VEÍCULOS VAZIOS PRA PERTO", "BringCars")
 createSwitch(Ca3, "ANTI FLIP", "MANTÉM O CARRO EM PÉ", "AntiFlip")
 createSwitch(Ca3, "NUNCA CAIR DA MOTO/CARRO", "NÃO DEIXA TE DERRUBAREM", "AntiFall")
 createSwitch(Ca3, "CARRO REFORÇADO", "MASSA AUMENTADA", "CarStrong")
@@ -3546,7 +3553,7 @@ RunService.Heartbeat:Connect(function(dt)
         end
     end
 
-    -- MagNet
+    -- MagNet (Tools)
     if Configs.MagNet then
         for _, obj in pairs(workspace:GetDescendants()) do
             if obj:IsA("Tool") and obj.Parent == workspace then
@@ -3559,6 +3566,58 @@ RunService.Heartbeat:Connect(function(dt)
                 end
             end
         end
+    end
+
+    -- Bring Cars (Car Magnet)
+    if Configs.BringCars then
+        for _, obj in pairs(workspace:GetDescendants()) do
+            if obj:IsA("VehicleSeat") or obj:IsA("Seat") then
+                if not obj.Occupant then
+                    local vehRoot = obj.AssemblyRootPart or obj
+                    local d = (vehRoot.Position - hrp.Position).Magnitude
+                    if d < 500 and d > 15 then
+                        vehRoot.CFrame = hrp.CFrame * CFrame.new(math.random(-15, 15), 5, math.random(-15, 15))
+                        if vehRoot:IsA("BasePart") then vehRoot.AssemblyLinearVelocity = Vector3.new(0,0,0) end
+                    end
+                end
+            end
+        end
+    end
+    
+    -- Gravity Mod
+    if Configs.GravityMod then
+        workspace.Gravity = Configs.GravityValue
+    else
+        workspace.Gravity = 196.2
+    end
+    
+    -- Auto Clicker
+    if Configs.AutoClicker and UserInputService:IsMouseButtonPressed(Enum.UserInputType.MouseButton1) then
+        if VirtualUser then pcall(function() VirtualUser:ClickButton1(Vector2.new()) end) end
+    end
+    
+    -- Walk On Water (Requires checking terrain and parts, so better handled via Collision or Raycast, but for simplicity we create a platform under player if above water)
+    if Configs.WalkOnWater then
+        local minPos = hrp.Position - Vector3.new(0, 3, 0)
+        local mat, _ = workspace.Terrain:ReadVoxels(Region3.new(minPos - Vector3.new(1,1,1), minPos + Vector3.new(1,1,1)), 4)
+        if mat[1][1][1] == Enum.Material.Water then
+            local waterPart = workspace:FindFirstChild("WaterWalkPart_LYAN")
+            if not waterPart then
+                waterPart = Instance.new("Part")
+                waterPart.Name = "WaterWalkPart_LYAN"
+                waterPart.Size = Vector3.new(5, 1, 5)
+                waterPart.Transparency = 1
+                waterPart.Anchored = true
+                waterPart.Parent = workspace
+            end
+            waterPart.CFrame = CFrame.new(hrp.Position.X, hrp.Position.Y - 3, hrp.Position.Z)
+        else
+            local waterPart = workspace:FindFirstChild("WaterWalkPart_LYAN")
+            if waterPart then waterPart:Destroy() end
+        end
+    else
+        local waterPart = workspace:FindFirstChild("WaterWalkPart_LYAN")
+        if waterPart then waterPart:Destroy() end
     end
 
     -- Size Char
