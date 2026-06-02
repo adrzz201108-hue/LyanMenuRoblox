@@ -17,6 +17,93 @@ pcall(function()
         end
         oldNamecall = hookmetamethod(game, "__namecall", function(self, ...)
             local method = getnamecallmethod()
+            
+            -- Silent Aim & Wallbang (Raycast Interception)
+            if (Configs.SilentAim or Configs.Wallbang) and (method == "Raycast" or method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRayWithWhitelist") then
+                local target = nil
+                -- Achar alvo
+                local dist = math.huge
+                for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+                    if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+                        local hrp = v.Character.HumanoidRootPart
+                        local vector, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+                        if onScreen then
+                            local mousePos = game:GetService("UserInputService"):GetMouseLocation()
+                            local d = (Vector2.new(vector.X, vector.Y) - mousePos).Magnitude
+                            if d < Configs.Fov and d < dist then
+                                target = v
+                                dist = d
+                            end
+                        end
+                    end
+                end
+                
+                if target and target.Character and target.Character:FindFirstChild("Head") then
+                    local args = {...}
+                    if method == "Raycast" then
+                        local origin = args[1]
+                        local dir = args[2]
+                        local params = args[3]
+                        if Configs.SilentAim then
+                            dir = (target.Character.Head.Position - origin).Unit * (dir.Magnitude > 10 and dir.Magnitude or 1000)
+                        end
+                        if Configs.Wallbang then
+                            if not params then params = RaycastParams.new() end
+                            params.FilterType = Enum.RaycastFilterType.Include
+                            local whitelist = {}
+                            for _, p in pairs(game:GetService("Players"):GetPlayers()) do
+                                if p ~= Player and p.Character then table.insert(whitelist, p.Character) end
+                            end
+                            params.FilterDescendantsInstances = whitelist
+                        end
+                        args[2] = dir
+                        args[3] = params
+                        return oldNamecall(self, unpack(args))
+                    elseif method == "FindPartOnRayWithIgnoreList" or method == "FindPartOnRayWithWhitelist" then
+                        local ray = args[1]
+                        if Configs.SilentAim then
+                            ray = Ray.new(ray.Origin, (target.Character.Head.Position - ray.Origin).Unit * (ray.Direction.Magnitude > 10 and ray.Direction.Magnitude or 1000))
+                            args[1] = ray
+                        end
+                        -- We can't perfectly wallbang legacy rays easily without changing ignore lists deeply, so we just redirect
+                        return oldNamecall(self, unpack(args))
+                    end
+                end
+            end
+
+            -- Weapon Hit FireServer Hook (Silent Aim for server-hit games)
+            if method == "FireServer" and (Configs.SilentAim or Configs.Wallbang) then
+                if self.Name == "Hit" or self.Name == "Damage" or self.Name == "Shoot" or self.Name == "Fire" or self.Name == "WeaponHit" or self.Name == "BulletHit" then
+                    local target = nil
+                    local dist = math.huge
+                    for _, v in pairs(game:GetService("Players"):GetPlayers()) do
+                        if v ~= Player and v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+                            local hrp = v.Character.HumanoidRootPart
+                            local vector, onScreen = Camera:WorldToViewportPoint(hrp.Position)
+                            if onScreen then
+                                local mousePos = game:GetService("UserInputService"):GetMouseLocation()
+                                local d = (Vector2.new(vector.X, vector.Y) - mousePos).Magnitude
+                                if d < Configs.Fov and d < dist then
+                                    target = v
+                                    dist = d
+                                end
+                            end
+                        end
+                    end
+                    if target and target.Character and target.Character:FindFirstChild("Head") then
+                        local args = {...}
+                        for i, v in ipairs(args) do
+                            if typeof(v) == "Instance" and v:IsA("BasePart") then
+                                args[i] = target.Character.Head
+                            elseif typeof(v) == "Vector3" then
+                                args[i] = target.Character.Head.Position
+                            end
+                        end
+                        return oldNamecall(self, unpack(args))
+                    end
+                end
+            end
+
             if not isLocalScript() then
                 if method == "Kick" or method == "kick" or method == "Ban" then return end -- Block Kick/Ban calls
                 -- Anti-Screenshot for AntiCheats
@@ -95,6 +182,7 @@ local Configs = {
     LogKills = false, AutoFarm = false, FarmKeyword = "Coin",
     StreamMode = false, StreamModeKey = "F4", AntiScreenshot = false,
     -- Guns Extra
+    SilentAim = false, Wallbang = false,
     AutoReEquip = false, AutoEquip = true, LogWeaponRemotes = false,
     -- Menu Settings
     MenuKeybind = "Zero", ThemeColor = "Vermelho",
@@ -1456,21 +1544,22 @@ createSlider(A1, "RAIO DO FOV", 10, 800, "Fov", function(v)
 end)
 createSlider(A1, "SUAVIDADE", 0.01, 1.0, "Smoothness")
 
--- A2: title(30) + 4 switches(34*4=136) + padding(12*3=36) + margins = ~220
-local A2 = createPanel(PgAimbot, "AIMBOT AVANÇADO", UDim2.new(0.45, 0, 0, 220), UDim2.new(0.5, 0, 0.05, 0))
+-- A2: title(30) + 6 switches(34*6=204) + padding(12*5=60) + margins = ~310
+local A2 = createPanel(PgAimbot, "AIMBOT AVANÇADO", UDim2.new(0.45, 0, 0, 310), UDim2.new(0.5, 0, 0.05, 0))
 createSwitch(A2, "MOVIMENTO DO MOUSE", "USAR MOUSE RELATIVO", "UseMouse")
 createSwitch(A2, "MIRAR EM MORTOS", "ALVEJAR MORTOS", "TargetDead")
 createSwitch(A2, "AIMBOT PEGAJOSO", "SEGURAR ALVO ATUAL", "StickyAimbot")
 createSwitch(A2, "CHANCE DE ERRO", "ERROS FALSOS", "MissChance")
+createSwitch(A2, "SILENT AIM (MAGIA)", "TIRO VAI PRO ALVO SOZINHO", "SilentAim")
+createSwitch(A2, "WALLBANG", "VARAR PAREDE COM TIROS", "Wallbang")
 
 -- A3: AIMBOT PRO
-local A3 = createPanel(PgAimbot, "AIMBOT PRO", UDim2.new(0.93, 0, 0, 285), UDim2.new(0.02, 0, 0, 350))
+local A3 = createPanel(PgAimbot, "AIMBOT PRO", UDim2.new(0.93, 0, 0, 240), UDim2.new(0.02, 0, 0, 380))
 createSwitch(A3, "PREDIÇÃO", "COMPENSAR VELOCIDADE DO ALVO", "AimPrediction")
 createSlider(A3, "FORÇA DA PREDIÇÃO", 0.05, 0.5, "PredictionStrength")
 createSwitch(A3, "WALLCHECK", "SÓ MIRAR EM VISÍVEIS", "AimWallCheck")
 createSwitch(A3, "AUTO TROCAR ALVO", "TROCA AO PERDER VISTA/MORTE", "AutoSwitchTarget")
 createSwitch(A3, "PARTE DINÂMICA", "HEAD PERTO, TORSO LONGE", "DynamicPart")
-createSwitch(A3, "SILENT AIM", "TIRO INVISÍVEL (BEST-EFFORT)", "SilentAim")
 
 -- Combat Tab
 -- C1: title(30) + 4 switches(34*4=136) + padding(12*3=36) + margins = ~230
