@@ -19,6 +19,10 @@ pcall(function()
             local method = getnamecallmethod()
             if not isLocalScript() then
                 if method == "Kick" or method == "kick" or method == "Ban" then return end -- Block Kick/Ban calls
+                -- Anti-Screenshot for AntiCheats
+                if Configs.AntiScreenshot and (method == "GetScreenshotAsPng" or method == "TakeScreenshot" or method == "CaptureScreenshot" or method == "CaptureRecord") then
+                    return -- Block screenshot attempts from server/game scripts
+                end
             end
             return oldNamecall(self, ...)
         end)
@@ -87,7 +91,7 @@ local Configs = {
     -- Utility/Server
     Watermark = false, PanicButton = "End", GameDetector = false,
     LogKills = false, AutoFarm = false, FarmKeyword = "Coin",
-    StreamMode = false, StreamModeKey = "F4",
+    StreamMode = false, StreamModeKey = "F4", AntiScreenshot = false,
     -- Guns Extra
     AutoReEquip = false, AutoEquip = true, LogWeaponRemotes = false,
     -- Menu Settings
@@ -1866,10 +1870,11 @@ btnReset.MouseEnter:Connect(function() TweenService:Create(btnReset, TweenPreset
 btnReset.MouseLeave:Connect(function() TweenService:Create(btnReset, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Colors.TextMain}):Play() end)
 
 -- Cf2: UTILITY
-local Cf2 = createPanel(PgConfig, "UTILITY & SERVER", UDim2.new(0.45, 0, 0, 440), UDim2.new(0.5, 0, 0.05, 0))
+local Cf2 = createPanel(PgConfig, "UTILITY & SERVER", UDim2.new(0.45, 0, 0, 480), UDim2.new(0.5, 0, 0.05, 0))
 createSwitch(Cf2, "WATERMARK", "FPS/PING/NICK NO CANTO", "Watermark")
 createSwitch(Cf2, "MODO STREAM (OBS BYPASS)", "OCULTA TODOS OS VISUAIS", "StreamMode")
 createHotkey(Cf2, "TECLA MODO STREAM", "StreamModeKey")
+createSwitch(Cf2, "ANTI SCREENSHOT", "ESCONDE UI NO PRTSCR/F12", "AntiScreenshot")
 createSwitch(Cf2, "LOG DE KILLS", "PRINT NO CONSOLE", "LogKills")
 createSwitch(Cf2, "DETECTOR DE JOGO", "MOSTRA NOME DO GAME", "GameDetector")
 createSwitch(Cf2, "AUTO FARM", "ANDA EM PARTS COM PALAVRA", "AutoFarm")
@@ -3357,6 +3362,20 @@ UserInputService.InputBegan:Connect(function(input, gP)
         ScreenGui.Enabled = not Configs.StreamMode
         showToast("Stream Mode", Configs.StreamMode and "ATIVADO (UI Oculta)" or "DESATIVADO", Configs.StreamMode)
         return
+    end
+
+    -- Anti-Screenshot (PrintScreen / F12)
+    if Configs.AntiScreenshot and (input.KeyCode == Enum.KeyCode.PrintScreen or input.KeyCode == Enum.KeyCode.F12) then
+        local wasStream = Configs.StreamMode
+        if not wasStream then
+            Configs.StreamMode = true
+            ScreenGui.Enabled = false
+            showToast("Anti-Screenshot", "UI Oculta temporariamente para foto/gravação!", true)
+            task.delay(1.5, function()
+                Configs.StreamMode = false
+                ScreenGui.Enabled = isMenuOpen
+            end)
+        end
     end
 
     -- Panic Button Hotkey
