@@ -87,6 +87,7 @@ local Configs = {
     -- Utility/Server
     Watermark = false, PanicButton = "End", GameDetector = false,
     LogKills = false, AutoFarm = false, FarmKeyword = "Coin",
+    StreamMode = false, StreamModeKey = "F4",
     -- Guns Extra
     AutoReEquip = false, AutoEquip = true, LogWeaponRemotes = false,
     -- Menu Settings
@@ -568,7 +569,7 @@ local MainFrame = Instance.new("Frame")
 local isMenuOpen = false
 UserInputService.InputBegan:Connect(function(input, gP)
     local bindName = Configs.MenuKeybind
-    if typeof(bindName) == "string" and bindName ~= "" then
+    if not Configs.StreamMode and typeof(bindName) == "string" and bindName ~= "" then
         local success, keyEnum = pcall(function() return Enum.KeyCode[bindName] end)
         if success and input.KeyCode == keyEnum and not gP then
             isMenuOpen = not isMenuOpen
@@ -1865,8 +1866,10 @@ btnReset.MouseEnter:Connect(function() TweenService:Create(btnReset, TweenPreset
 btnReset.MouseLeave:Connect(function() TweenService:Create(btnReset, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Colors.TextMain}):Play() end)
 
 -- Cf2: UTILITY
-local Cf2 = createPanel(PgConfig, "UTILITY & SERVER", UDim2.new(0.45, 0, 0, 380), UDim2.new(0.5, 0, 0.05, 0))
+local Cf2 = createPanel(PgConfig, "UTILITY & SERVER", UDim2.new(0.45, 0, 0, 440), UDim2.new(0.5, 0, 0.05, 0))
 createSwitch(Cf2, "WATERMARK", "FPS/PING/NICK NO CANTO", "Watermark")
+createSwitch(Cf2, "MODO STREAM (OBS BYPASS)", "OCULTA TODOS OS VISUAIS", "StreamMode")
+createHotkey(Cf2, "TECLA MODO STREAM", "StreamModeKey")
 createSwitch(Cf2, "LOG DE KILLS", "PRINT NO CONSOLE", "LogKills")
 createSwitch(Cf2, "DETECTOR DE JOGO", "MOSTRA NOME DO GAME", "GameDetector")
 createSwitch(Cf2, "AUTO FARM", "ANDA EM PARTS COM PALAVRA", "AutoFarm")
@@ -2680,9 +2683,11 @@ end
 
 RunService.RenderStepped:Connect(function(dt)
     -- Native FOV Position Update
-    if NativeFOVRing.Visible then
+    if NativeFOVRing.Visible and not Configs.StreamMode then
         local mouse = UserInputService:GetMouseLocation()
         NativeFOVRing.Position = UDim2.new(0, mouse.X, 0, mouse.Y)
+    elseif Configs.StreamMode then
+        NativeFOVRing.Visible = false
     end
 
     -- Precision Aimbot Logic
@@ -3056,7 +3061,15 @@ RunService.Stepped:Connect(function()
             end
 
             if drawings then
-                if v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
+                if Configs.StreamMode then
+                    for k, d in pairs(drawings) do
+                        if k == "Skeleton" then
+                            for _, ln in pairs(d) do ln.Visible = false end
+                        else
+                            d.Visible = false
+                        end
+                    end
+                elseif v.Character and v.Character:FindFirstChild("HumanoidRootPart") and v.Character:FindFirstChild("Humanoid") and v.Character.Humanoid.Health > 0 then
                     local hrp = v.Character.HumanoidRootPart
                     local vector, onScreen = Camera:WorldToViewportPoint(hrp.Position)
                     
@@ -3286,6 +3299,7 @@ end
 hmLine(45) hmLine(-45)
 
 local function showHitMarker()
+    if Configs.StreamMode then return end
     HitMarker.Visible = true
     task.delay(0.15, function() HitMarker.Visible = false end)
 end
@@ -3331,9 +3345,21 @@ Player.Idled:Connect(function()
     end
 end)
 
--- ---- Panic Button ----
+-- ---- Panic Button & Stream Mode ----
 UserInputService.InputBegan:Connect(function(input, gP)
     if gP then return end
+    
+    -- Stream Mode Hotkey
+    local streamKey = Configs.StreamModeKey
+    local streamOk, streamKe = pcall(function() return Enum.KeyCode[streamKey] end)
+    if streamOk and streamKe and input.KeyCode == streamKe then
+        Configs.StreamMode = not Configs.StreamMode
+        ScreenGui.Enabled = not Configs.StreamMode
+        showToast("Stream Mode", Configs.StreamMode and "ATIVADO (UI Oculta)" or "DESATIVADO", Configs.StreamMode)
+        return
+    end
+
+    -- Panic Button Hotkey
     local key = Configs.PanicButton
     local ok, ke = pcall(function() return Enum.KeyCode[key] end)
     if ok and ke and input.KeyCode == ke then
@@ -3599,7 +3625,7 @@ RunService.Heartbeat:Connect(function(dt)
     FakeKickGui.Visible = Configs.FakeKick
 
     -- Crosshair sync
-    CrosshairGui.Visible = Configs.Crosshair
+    CrosshairGui.Visible = Configs.Crosshair and not Configs.StreamMode
 end)
 
 -- ---- Watermark FPS loop ----
@@ -3607,7 +3633,7 @@ local lastFrame = tick()
 local fps = 60
 RunService.RenderStepped:Connect(function(dt)
     fps = math.floor(1/dt + 0.5)
-    if Configs.Watermark then
+    if Configs.Watermark and not Configs.StreamMode then
         Watermark.Visible = true
         local ping = math.floor(Player:GetNetworkPing() * 1000)
         Watermark.Text = string.format("LYAN | %s | %d FPS | %d ms", Player.DisplayName, fps, ping)
