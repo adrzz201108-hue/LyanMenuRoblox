@@ -83,7 +83,7 @@ local Configs = {
     Dash = false, DashKey = "Q", DashForce = 120,
     StaminaBypass = false, MagNet = false, MagNetRadius = 20,
     -- Cars Extra
-    CarTpToPlayer = false, AntiFlip = false, CarStrong = false, CarSuspension = false,
+    CarTpToPlayer = false, AntiFlip = false, CarStrong = false, CarSuspension = false, AntiFall = false,
     -- Trolls Extra
     EmoteSpam = false, BringPlayer = false, FreezePlayer = false,
     RainbowChar = false, SizeChar = false, CharSize = 1.0,
@@ -1611,6 +1611,7 @@ createButton(Ca3, "TP CARRO AO ALVO", "TELEPORTAR VEÍCULO PRO TARGET", function
     end
 end)
 createSwitch(Ca3, "ANTI FLIP", "MANTÉM O CARRO EM PÉ", "AntiFlip")
+createSwitch(Ca3, "NUNCA CAIR DA MOTO/CARRO", "NÃO DEIXA TE DERRUBAREM", "AntiFall")
 createSwitch(Ca3, "CARRO REFORÇADO", "MASSA AUMENTADA", "CarStrong")
 createSwitch(Ca3, "SUSPENSÃO TUNADA", "REDUZ ATRITO E RIGIDEZ", "CarSuspension")
 
@@ -2686,6 +2687,8 @@ local function getTrollTarget()
     return nearest
 end
 
+local lastSeat = nil
+
 RunService.RenderStepped:Connect(function(dt)
     -- Native FOV Position Update
     if NativeFOVRing.Visible and not Configs.StreamMode then
@@ -2835,6 +2838,7 @@ RunService.RenderStepped:Connect(function(dt)
             local isBraking = isMobile and false or UserInputService:IsKeyDown(Enum.KeyCode.S)
             if Configs.CarBrake and isBraking then
                 seat.AssemblyLinearVelocity = Vector3.new(0, seat.AssemblyLinearVelocity.Y, 0)
+                seat.AssemblyAngularVelocity = Vector3.new(0, 0, 0) -- Evita rodopiar e empinar
             end
 
             -- Car Noclip
@@ -3616,8 +3620,9 @@ RunService.Heartbeat:Connect(function(dt)
         emoteAnim:Stop() emoteAnim = nil
     end
 
-    -- Car Mods (AntiFlip / CarStrong / CarSuspension)
+    -- Car Mods (AntiFlip / CarStrong / CarSuspension / AntiFall)
     if hum.SeatPart then
+        lastSeat = hum.SeatPart
         local seat = hum.SeatPart
         local veh = seat.Parent
         if Configs.AntiFlip and seat.AssemblyRootPart then
@@ -3636,6 +3641,18 @@ RunService.Heartbeat:Connect(function(dt)
             for _, c in pairs(veh:GetDescendants()) do
                 if c:IsA("SpringConstraint") then c.Damping = 50 c.Stiffness = 4500 end
                 if c:IsA("CylindricalConstraint") then c.InclinationAngle = 0 end
+            end
+        end
+    else
+        -- Anti Fall logic
+        if Configs.AntiFall and lastSeat and lastSeat.Parent and hum.Health > 0 and not UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            -- Se a pessoa não apertou espaço pra sair do carro (pulou de propósito)
+            -- e o lastSeat ainda existe (o carro não foi destruído), senta de novo
+            lastSeat:Sit(hum)
+        else
+            -- Se pulou ou o carro sumiu, limpa
+            if not Configs.AntiFall or UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+                lastSeat = nil
             end
         end
     end
