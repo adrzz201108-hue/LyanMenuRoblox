@@ -788,12 +788,12 @@ glassInner.BackgroundTransparency = 0.97
 glassInner.BorderSizePixel = 0
 glassInner.ZIndex = 0
 glassInner.Parent = MainFrame
-Instance.new("UICorner", glassInner).CornerRadius = UDim.new(0, 8)
+-- Removed UICorner from glassInner
 
 local outline = Instance.new("UIStroke", MainFrame)
 outline.Color = Color3.fromRGB(50, 50, 50)
 outline.Thickness = 1.5
-Instance.new("UICorner", MainFrame).CornerRadius = UDim.new(0, 10)
+-- Removed UICorner from MainFrame
 
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, SidebarWidth, 1, 0)
@@ -801,7 +801,7 @@ Sidebar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
 Sidebar.BackgroundTransparency = 0.3
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = MainFrame
-Instance.new("UICorner", Sidebar).CornerRadius = UDim.new(0, 10)
+-- Removed UICorner from Sidebar
 -- Sidebar right border line
 local sidebarLine = Instance.new("Frame")
 sidebarLine.Size = UDim2.new(0, 1, 1, 0)
@@ -894,7 +894,7 @@ local function createPanel(parent, title, size, pos)
             parent.CanvasSize = UDim2.new(0, 0, 0, needed)
         end
     end
-    Instance.new("UICorner", panel).CornerRadius = UDim.new(0, 8)
+    -- Removed UICorner from panel
     local stroke = Instance.new("UIStroke", panel)
     stroke.Color = Color3.fromRGB(50, 50, 50)
     stroke.Thickness = 1
@@ -1060,7 +1060,7 @@ local function createButton(parent, text, subtext, callback)
     btn.Font = Enum.Font.GothamSemibold
     btn.TextSize = 11
     btn.Parent = frame
-    Instance.new("UICorner", btn).CornerRadius = UDim.new(0, 6)
+    -- Removed UICorner from btn
     local stroke = Instance.new("UIStroke", btn)
     stroke.Color = Colors.Border
     stroke.Thickness = 1
@@ -1836,7 +1836,7 @@ btnSave.TextColor3 = Colors.TextMain
 btnSave.Font = Enum.Font.GothamBold
 btnSave.TextSize = 12
 btnSave.Parent = Cf1:FindFirstChild("Content") or Cf1
-Instance.new("UICorner", btnSave).CornerRadius = UDim.new(0, 4)
+-- Removed UICorner from btnSave
 btnSave.MouseButton1Click:Connect(function() saveConfig() showToast("Configuração", "Configurações Salvas!") end)
 btnSave.MouseEnter:Connect(function() TweenService:Create(btnSave, TweenPresets.Fast, {BackgroundColor3 = Colors.Accent, TextColor3 = Color3.new(0,0,0)}):Play() end)
 btnSave.MouseLeave:Connect(function() TweenService:Create(btnSave, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Colors.TextMain}):Play() end)
@@ -1850,7 +1850,7 @@ btnLoad.TextColor3 = Colors.TextMain
 btnLoad.Font = Enum.Font.GothamBold
 btnLoad.TextSize = 12
 btnLoad.Parent = Cf1:FindFirstChild("Content") or Cf1
-Instance.new("UICorner", btnLoad).CornerRadius = UDim.new(0, 4)
+-- Removed UICorner from btnLoad
 btnLoad.MouseButton1Click:Connect(function() loadConfig() showToast("Configuração", "Configurações Carregadas!") end)
 btnLoad.MouseEnter:Connect(function() TweenService:Create(btnLoad, TweenPresets.Fast, {BackgroundColor3 = Colors.Border}):Play() end)
 btnLoad.MouseLeave:Connect(function() TweenService:Create(btnLoad, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play() end)
@@ -1864,7 +1864,7 @@ btnReset.TextColor3 = Colors.TextMain
 btnReset.Font = Enum.Font.GothamBold
 btnReset.TextSize = 12
 btnReset.Parent = Cf1:FindFirstChild("Content") or Cf1
-Instance.new("UICorner", btnReset).CornerRadius = UDim.new(0, 4)
+-- Removed UICorner from btnReset
 btnReset.MouseButton1Click:Connect(function() resetConfig() showToast("Configuração", "Tudo foi resetado!") end)
 btnReset.MouseEnter:Connect(function() TweenService:Create(btnReset, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(239, 68, 68), TextColor3 = Color3.new(0,0,0)}):Play() end)
 btnReset.MouseLeave:Connect(function() TweenService:Create(btnReset, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Colors.TextMain}):Play() end)
@@ -1919,7 +1919,7 @@ SubTabBar.Position = UDim2.new(0, 10, 0, 10)
 SubTabBar.BackgroundColor3 = Colors.Panel
 SubTabBar.BorderSizePixel = 0
 SubTabBar.Parent = PgServer
-Instance.new("UICorner", SubTabBar).CornerRadius = UDim.new(0, 6)
+-- Removed UICorner from SubTabBar
 local stb = Instance.new("UIStroke", SubTabBar)
 stb.Color = Colors.Border
 stb.Thickness = 1
@@ -1936,7 +1936,7 @@ local function makeSubTabBtn(label, x)
     b.TextSize = 13
     b.AutoButtonColor = false
     b.Parent = SubTabBar
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+    -- Removed UICorner from b (makeSubTabBtn)
     return b
 end
 local btnPlayers = makeSubTabBtn("PLAYERS", 0)
@@ -2074,7 +2074,7 @@ local function buildPlayerRow(p)
     row.BackgroundColor3 = Colors.Panel
     row.BorderSizePixel = 0
     row.Parent = PlayersScroll
-    Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+    -- Removed UICorner from row
     local rs = Instance.new("UIStroke", row); rs.Color = Colors.Border; rs.Thickness = 1
 
     local nameLbl = Instance.new("TextLabel")
@@ -2112,7 +2112,7 @@ local function buildPlayerRow(p)
         b.TextSize = 10
         b.AutoButtonColor = false
         b.Parent = row
-        Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+        -- Removed UICorner from b (smallBtn)
         local bs = Instance.new("UIStroke", b); bs.Color = Colors.Border
         b.MouseEnter:Connect(function() bs.Color = Colors.Accent end)
         b.MouseLeave:Connect(function() bs.Color = Colors.Border end)
@@ -2243,7 +2243,7 @@ local function topBtn(label, x, w, fn)
     b.TextSize = 12
     b.AutoButtonColor = false
     b.Parent = VehTopBar
-    Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+    -- Removed UICorner from b (vTopBtn)
     b.MouseButton1Click:Connect(fn)
     return b
 end
@@ -2282,7 +2282,7 @@ local function rebuildVehicles()
         row.BackgroundColor3 = Colors.Panel
         row.BorderSizePixel = 0
         row.Parent = VehiculosScroll
-        Instance.new("UICorner", row).CornerRadius = UDim.new(0, 6)
+        -- Removed UICorner from row (VehiculosScroll)
         Instance.new("UIStroke", row).Color = Colors.Border
 
         local nm = Instance.new("TextLabel")
@@ -2341,7 +2341,7 @@ local function rebuildVehicles()
             b.TextSize = 10
             b.AutoButtonColor = false
             b.Parent = row
-            Instance.new("UICorner", b).CornerRadius = UDim.new(0, 4)
+            -- Removed UICorner from b (vRowBtn)
             local bs = Instance.new("UIStroke", b); bs.Color = Colors.Border
             b.MouseEnter:Connect(function() bs.Color = Colors.Accent end)
             b.MouseLeave:Connect(function() bs.Color = Colors.Border end)
@@ -2471,7 +2471,7 @@ local function refreshPlayers()
     clrBtn.Font = Enum.Font.GothamBold
     clrBtn.TextSize = 9
     clrBtn.Parent = PlrPanel
-    Instance.new("UICorner", clrBtn).CornerRadius = UDim.new(0, 4)
+    -- Removed UICorner from clrBtn
     clrBtn.MouseButton1Click:Connect(function()
         SelectedTrollTarget = nil
         SelectedLbl.Text = "TARGET: NONE"
@@ -2487,7 +2487,7 @@ local function refreshPlayers()
             pFrame.Parent = PlrScroll
             local pfStroke = Instance.new("UIStroke", pFrame)
             pfStroke.Color = Colors.Border
-            Instance.new("UICorner", pFrame).CornerRadius = UDim.new(0, 6)
+            -- Removed UICorner from pFrame
             
             local img = Instance.new("ImageLabel")
             img.Size = UDim2.new(0, 60, 0, 60)
@@ -2495,7 +2495,7 @@ local function refreshPlayers()
             img.BackgroundTransparency = 1
             img.Image = "rbxthumb://type=AvatarHeadShot&id="..p.UserId.."&w=150&h=150"
             img.Parent = pFrame
-            Instance.new("UICorner", img).CornerRadius = UDim.new(1, 0)
+            -- Removed UICorner from img
             
             local nmLbl = Instance.new("TextLabel")
             nmLbl.Size = UDim2.new(1, 0, 0, 20)
@@ -2517,7 +2517,7 @@ local function refreshPlayers()
             selBtn.Font = Enum.Font.GothamBold
             selBtn.TextSize = 9
             selBtn.Parent = pFrame
-            Instance.new("UICorner", selBtn).CornerRadius = UDim.new(0, 4)
+            -- Removed UICorner from selBtn
             
             selBtn.MouseButton1Click:Connect(function()
                 SelectedTrollTarget = p
@@ -3277,7 +3277,7 @@ Watermark.TextSize = 12
 Watermark.Visible = false
 Watermark.ZIndex = 30
 Watermark.Parent = ScreenGui
-Instance.new("UICorner", Watermark).CornerRadius = UDim.new(0, 4)
+-- Removed UICorner from Watermark
 local wmStroke = Instance.new("UIStroke", Watermark)
 wmStroke.Color = Colors.Accent
 wmStroke.Thickness = 1
@@ -3336,7 +3336,7 @@ fkBtn.Font = Enum.Font.GothamBold
 fkBtn.TextSize = 14
 fkBtn.ZIndex = 101
 fkBtn.Parent = FakeKickGui
-Instance.new("UICorner", fkBtn).CornerRadius = UDim.new(0, 4)
+-- Removed UICorner from fkBtn
 fkBtn.MouseButton1Click:Connect(function() Configs.FakeKick = false FakeKickGui.Visible = false end)
 
 -- ---- AntiAFK via VirtualUser ----
