@@ -2733,12 +2733,11 @@ RunService.RenderStepped:Connect(function(dt)
             if not flyingState then
                 flyingState = true
                 hum.PlatformStand = true
-                flyVel = Instance.new("LinearVelocity", hrp)
+                flyVel = Instance.new("BodyVelocity", hrp)
                 flyVel.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-                flyVel.VectorVelocity = Vector3.new(0, 0, 0)
-                flyGyro = Instance.new("AngularVelocity", hrp)
+                flyGyro = Instance.new("BodyGyro", hrp)
                 flyGyro.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-                flyGyro.AngularVelocity = Vector3.new(0, 0, 0)
+                flyGyro.P = 10000
             end
             local moveDir = Vector3.new()
             if isMobile then
@@ -2755,7 +2754,7 @@ RunService.RenderStepped:Connect(function(dt)
                 if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir = moveDir + Vector3.new(0, 1, 0) end
                 if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir = moveDir - Vector3.new(0, 1, 0) end
             end
-            flyVel.VectorVelocity = moveDir * Configs.FlySpeed
+            flyVel.Velocity = moveDir * Configs.FlySpeed
             flyGyro.CFrame = Camera.CFrame
         elseif flyingState then
             flyingState = false
@@ -2772,14 +2771,14 @@ RunService.RenderStepped:Connect(function(dt)
             -- Car Fly
             if Configs.CarFly then
                 if not seat:FindFirstChild("CarFlyVel") then
-                    local cv = Instance.new("LinearVelocity", seat)
+                    local cv = Instance.new("BodyVelocity", seat)
                     cv.Name = "CarFlyVel"
                     cv.MaxForce = Vector3.new(math.huge, math.huge, math.huge)
-                    cv.VectorVelocity = Vector3.new(0, 0, 0)
-                    local cg = Instance.new("AngularVelocity", seat)
+                    local cg = Instance.new("BodyGyro", seat)
                     cg.Name = "CarFlyGyro"
                     cg.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
-                    cg.AngularVelocity = Vector3.new(0, 0, 0)
+                    cg.P = 9e4
+                    cg.D = 1000
                 end
                 local moveDir = Vector3.new()
                 if isMobile then
@@ -2795,7 +2794,7 @@ RunService.RenderStepped:Connect(function(dt)
                     if UserInputService:IsKeyDown(Enum.KeyCode.Space) then moveDir = moveDir + Vector3.new(0, 1, 0) end
                     if UserInputService:IsKeyDown(Enum.KeyCode.LeftControl) then moveDir = moveDir - Vector3.new(0, 1, 0) end
                 end
-                seat.CarFlyVel.VectorVelocity = moveDir * Configs.CarFlySpeed
+                seat.CarFlyVel.Velocity = moveDir * Configs.CarFlySpeed
                 local _, yRot, _ = Camera.CFrame:ToEulerAnglesYXZ()
                 seat.CarFlyGyro.CFrame = CFrame.Angles(0, yRot, 0)
             else
@@ -2806,7 +2805,7 @@ RunService.RenderStepped:Connect(function(dt)
             -- Car Fling
             if Configs.CarFling then
                 if not seat:FindFirstChild("CarFlingForce") then
-                    local sf = Instance.new("AngularVelocity", seat)
+                    local sf = Instance.new("BodyAngularVelocity", seat)
                     sf.Name = "CarFlingForce"
                     sf.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
                 end
@@ -2839,7 +2838,7 @@ RunService.RenderStepped:Connect(function(dt)
         -- Spin Fling
         if Configs.SpinFling and hrp then
             if not spinForce then
-                spinForce = Instance.new("AngularVelocity", hrp)
+                spinForce = Instance.new("BodyAngularVelocity", hrp)
                 spinForce.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
             end
             spinForce.AngularVelocity = Vector3.new(0, Configs.FlingSpeed, 0)
@@ -2849,7 +2848,7 @@ RunService.RenderStepped:Connect(function(dt)
         if Configs.CarFling and hum and hum.SeatPart then
             local seat = hum.SeatPart
             if not seat:FindFirstChild("CarFlingForce") then
-                local sf = Instance.new("AngularVelocity", seat)
+                local sf = Instance.new("BodyAngularVelocity", seat)
                 sf.Name = "CarFlingForce"
                 sf.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
             end
@@ -2951,7 +2950,7 @@ RunService.RenderStepped:Connect(function(dt)
                 hrp.CFrame = randTarget.Character.HumanoidRootPart.CFrame * CFrame.new(0, 0, 1)
                 -- Force spin to ensure fling
                 if not spinForce then
-                    spinForce = Instance.new("AngularVelocity", hrp)
+                    spinForce = Instance.new("BodyAngularVelocity", hrp)
                     spinForce.MaxTorque = Vector3.new(math.huge, math.huge, math.huge)
                 end
                 spinForce.AngularVelocity = Vector3.new(0, 8000, 0)
