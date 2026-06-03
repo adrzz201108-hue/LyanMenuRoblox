@@ -185,7 +185,7 @@ local Configs = {
     SilentAim = false, Wallbang = false,
     AutoReEquip = false, AutoEquip = true, LogWeaponRemotes = false,
     -- Menu Settings
-    MenuKeybind = "Zero", ThemeColor = "Vermelho",
+    MenuKeybind = "Zero", ThemeColor = "Branco",
 }
 
 -- [Persist]
@@ -1290,20 +1290,20 @@ createSwitch(A2, "WALLBANG", "VARAR PAREDE COM TIROS", "Wallbang")
 
 -- A3: AIMBOT PRO
 local A3 = createPanel(PgAimbot, "AIMBOT PRO", UDim2.new(0.93, 0, 0, 240), UDim2.new(0.02, 0, 0, 380))
-createSwitch(A3, "PREDI√á√ÉO", "COMPENSAR VELOCIDADE DO ALVO", "AimPrediction")
-createSlider(A3, "FOR√áA DA PREDI√á√ÉO", 0.05, 0.5, "PredictionStrength")
-createSwitch(A3, "WALLCHECK", "S√ì MIRAR EM VIS√çVEIS", "AimWallCheck")
+createSwitch(A3, "PREDI«√O", "COMPENSAR VELOCIDADE DO ALVO", "AimPrediction")
+createSlider(A3, "FOR«A DA PREDI«√O", 0.05, 0.5, "PredictionStrength")
+createSwitch(A3, "WALLCHECK", "S” MIRAR EM VISÕVEIS", "AimWallCheck")
 createSwitch(A3, "AUTO TROCAR ALVO", "TROCA AO PERDER VISTA/MORTE", "AutoSwitchTarget")
-createSwitch(A3, "PARTE DIN√ÇMICA", "HEAD PERTO, TORSO LONGE", "DynamicPart")
+createSwitch(A3, "PARTE DIN¬MICA", "HEAD PEROA, TORSO LONGE", "DynamicPart")
 
 -- Combat Tab
 -- C1: title(30) + 4 switches(34*4=136) + padding(12*3=36) + margins = ~230
 local C1 = createPanel(PgCombat, "MODS DE ARMA (EQUIPE PARA ATIVAR)", UDim2.new(0.45, 0, 0, 235), UDim2.new(0.02, 0, 0.05, 0))
 createSwitch(C1, "SEM RECUO", "0 RECUO", "NoRecoil")
-createSwitch(C1, "SEM DISPERS√ÉO", "TIRO RETO", "NoSpread")
-createSwitch(C1, "MUNI√á√ÉO INFINITA", "PENTE INFINITO", "InfiniteAmmo")
-createSwitch(C1, "TIRO AUTOM√ÅTICO", "SEGURAR CLIQUE", "FullAuto")
-
+createSwitch(C1, "SEM RECUO", "0 RECUO", "NoRecoil")
+createSwitch(C1, "SEM DISPERS√O", "TIRO RETO", "NoSpread")
+createSwitch(C1, "MUNI«√O INFINITA", "PENTE INFINITO", "InfiniteAmmo")
+createSwitch(C1, "TIRO AUTOM√TICO", "SEGURAR CLIQUE", "FullAuto")
 -- C2: title(30) + 2 switches(34*2=68) + slider(40) + padding(12*2=24) + margins = ~200
 local C2 = createPanel(PgCombat, "ASSIST√äNCIA DE COMBATE", UDim2.new(0.45, 0, 0, 200), UDim2.new(0.5, 0, 0.05, 0))
 createSwitch(C2, "TRIGGERBOT", "ATIRAR AUTOM√ÅTICO", "TriggerBot")
@@ -1361,10 +1361,10 @@ local P3 = createPanel(PgExploits, "EXTRAS", UDim2.new(0.93, 0, 0, 520), UDim2.n
 createSwitch(P3, "ANTI AFK", "NUNCA KICK POR AFK", "AntiAfk")
 createSwitch(P3, "ANTI VOID", "VOLTA AO CAIR DO MAPA", "AntiVoid")
 createSwitch(P3, "SPIDER WALK", "ANDAR EM PAREDES", "SpiderWalk")
-createSwitch(P3, "AUTO BHOP", "PULA AO TOCAR CH√ÉO", "AutoBhop")
-createSwitch(P3, "DASH", "AVAN√áO R√ÅPIDO COM TECLA", "Dash")
+createSwitch(P3, "AUTO BHOP", "PULA AO TOCAR CH√O", "AutoBhop")
+createSwitch(P3, "DASH", "AVAN«O R¡PIDO COM TECLA", "Dash")
 createHotkey(P3, "TECLA DO DASH", "DashKey")
-createSlider(P3, "FOR√áA DO DASH", 50, 500, "DashForce")
+createSlider(P3, "FOR«A DO DASH", 50, 500, "DashForce")
 createSwitch(P3, "STAMINA INFINITA", "ZERA VALORES DE STAMINA", "StaminaBypass")
 createSwitch(P3, "MAG-NET", "PUXAR ITENS PR√ìXIMOS", "MagNet")
 createSlider(P3, "RAIO DO MAG-NET", 5, 80, "MagNetRadius")
@@ -1605,7 +1605,7 @@ end)
 
 -- Config Tab
 -- Cf1: title(30) + hotkey(34) + dropdown(34) + padding(12*2=24) + save btn + load btn + margins
-local Cf1 = createPanel(PgConfig, "CONFIGURA√á√ïES DO MENU", UDim2.new(0.45, 0, 0, 360), UDim2.new(0.02, 0, 0.05, 0))
+local Cf1 = createPanel(PgConfig, "CONFIGURA«’ES DO MENU", UDim2.new(0.45, 0, 0, 360), UDim2.new(0.02, 0, 0.05, 0))
 createHotkey(Cf1, "TECLA DE ABRIR/FECHAR", "MenuKeybind")
 createDropdown(Cf1, "COR DE DESTAQUE", {"Vermelho", "Azul", "Verde", "Roxo", "Branco"}, "ThemeColor")
 
@@ -1618,7 +1618,7 @@ local function updateThemeColor()
         ["Branco"] = Color3.fromRGB(255, 255, 255),
     }
     local oldColor = Colors.Accent
-    local newColor = colorMap[Configs.ThemeColor] or colorMap["Vermelho"]
+    local newColor = colorMap[Configs.ThemeColor] or colorMap["Branco"]
     if newColor ~= oldColor then
         Colors.Accent = newColor
         for _, obj in pairs(ScreenGui:GetDescendants()) do
@@ -3677,3 +3677,7 @@ task.spawn(function()
         end
     end
 end)
+
+
+
+
