@@ -131,9 +131,9 @@ local hasMouseMoverel = (mousemoverel ~= nil)
 
 -- [Mobile Support] Detection & Responsive Sizing
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-local MenuWidth = isMobile and math.clamp(Camera.ViewportSize.X - 10, 320, 950) or 950
-local MenuHeight = isMobile and math.clamp(Camera.ViewportSize.Y - 40, 280, 580) or 580
-local SidebarWidth = isMobile and 100 or 170
+local MenuWidth = isMobile and 500 or 650
+local MenuHeight = isMobile and 320 or 440
+local SidebarWidth = isMobile and 120 or 150
 
 -- [Config] Runtime state table
 local Configs = {
@@ -343,7 +343,7 @@ end
 
 local MainFrame = Instance.new("Frame")
 
-local isMenuOpen = false
+
 UserInputService.InputBegan:Connect(function(input, gP)
     local bindName = Configs.MenuKeybind
     if not Configs.StreamMode and typeof(bindName) == "string" and bindName ~= "" then
@@ -352,11 +352,11 @@ UserInputService.InputBegan:Connect(function(input, gP)
             isMenuOpen = not isMenuOpen
             if isMenuOpen then
                 MainFrame.Visible = true
-                TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2), Size = UDim2.new(0, MenuWidth, 0, MenuHeight)}):Play()
+                MainFrame.Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2)
+                TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2)}):Play()
             else
-                local tw = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -MenuWidth*0.45, 0.5, -MenuHeight*0.42), Size = UDim2.new(0, MenuWidth*0.9, 0, MenuHeight*0.85)})
-                tw:Play()
-                tw.Completed:Connect(function() if not isMenuOpen then MainFrame.Visible = true end end)
+                TweenService:Create(MainFrame, TweenInfo.new(0.2, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2 + 20)}):Play()
+                task.delay(0.2, function() if not isMenuOpen then MainFrame.Visible = false end end)
             end
         end
     end
@@ -372,6 +372,7 @@ MainFrame.Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2)
 MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
 MainFrame.BackgroundTransparency = 0
 MainFrame.BorderSizePixel = 0
+MainFrame.ClipsDescendants = true
 MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Visible = true
@@ -408,13 +409,10 @@ if isMobile then
         isMenuOpen = not isMenuOpen
         if isMenuOpen then
             MainFrame.Visible = true
-            TweenService:Create(MainFrame, TweenInfo.new(0.4, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2), Size = UDim2.new(0, MenuWidth, 0, MenuHeight)}):Play()
             TweenService:Create(MobileToggleBtn, TweenPresets.Fast, {BackgroundTransparency = 0.25}):Play()
             MobileToggleBtn.Text = "X"
         else
-            local tw = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -MenuWidth*0.45, 0.5, -MenuHeight*0.42), Size = UDim2.new(0, MenuWidth*0.9, 0, MenuHeight*0.85)})
-            tw:Play()
-            tw.Completed:Connect(function() if not isMenuOpen then MainFrame.Visible = true end end)
+            MainFrame.Visible = false
             TweenService:Create(MobileToggleBtn, TweenPresets.Fast, {BackgroundTransparency = 0.5}):Play()
             MobileToggleBtn.Text = "L"
         end
