@@ -566,7 +566,7 @@ task.spawn(function()
     TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
         Size = UDim2.new(0, MenuWidth, 0, MenuHeight),
         Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2),
-        BackgroundTransparency = 0.4
+        BackgroundTransparency = 0
     }):Play()
 end)
 
@@ -686,8 +686,8 @@ UserInputService.InputBegan:Connect(function(input, gP)
 end)
 MainFrame.Size = UDim2.new(0, MenuWidth, 0, MenuHeight)
 MainFrame.Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2)
-MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-MainFrame.BackgroundTransparency = 0.4
+MainFrame.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+MainFrame.BackgroundTransparency = 0
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
@@ -870,15 +870,7 @@ if isMobile then
     end)
 end
 
--- Liquid Glass: subtle inner glow layer
-local glassInner = Instance.new("Frame")
-glassInner.Size = UDim2.new(1, 0, 1, 0)
-glassInner.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
-glassInner.BackgroundTransparency = 0.97
-glassInner.BorderSizePixel = 0
-glassInner.ZIndex = 0
-glassInner.Parent = MainFrame
--- Removed UICorner from glassInner
+-- Removed liquid glass
 
 local outline = Instance.new("UIStroke", MainFrame)
 outline.Color = Color3.fromRGB(50, 50, 50)
@@ -887,8 +879,8 @@ outline.Thickness = 1.5
 
 local Sidebar = Instance.new("Frame")
 Sidebar.Size = UDim2.new(0, SidebarWidth, 1, 0)
-Sidebar.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-Sidebar.BackgroundTransparency = 0.3
+Sidebar.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+Sidebar.BackgroundTransparency = 0
 Sidebar.BorderSizePixel = 0
 Sidebar.Parent = MainFrame
 -- Removed UICorner from Sidebar
@@ -901,29 +893,37 @@ sidebarLine.BackgroundTransparency = 0.5
 sidebarLine.BorderSizePixel = 0
 sidebarLine.Parent = Sidebar
 
-local LogoLabel = Instance.new("TextLabel")
-LogoLabel.Size = UDim2.new(1, 0, 0, 45)
-LogoLabel.Position = UDim2.new(0, 0, 0, 12)
-LogoLabel.BackgroundTransparency = 1
-LogoLabel.Text = "LYAN"
-LogoLabel.TextColor3 = Colors.Accent
-LogoLabel.Font = Enum.Font.GothamBlack
-LogoLabel.TextSize = isMobile and 18 or 24
-LogoLabel.TextStrokeTransparency = 0.65
-LogoLabel.TextStrokeColor3 = Color3.new(0, 0, 0)
-LogoLabel.Parent = Sidebar
+local LogoImg = Instance.new("ImageLabel")
+LogoImg.Size = UDim2.new(1, -40, 0, 45)
+LogoImg.Position = UDim2.new(0, 20, 0, 20)
+LogoImg.BackgroundTransparency = 1
+LogoImg.Image = ""
+LogoImg.ScaleType = Enum.ScaleType.Fit
+LogoImg.Parent = Sidebar
 
-local LogoSub = Instance.new("TextLabel")
-LogoSub.Size = UDim2.new(1, 0, 0, 18)
-LogoSub.Position = UDim2.new(0, 0, 0, 42)
-LogoSub.BackgroundTransparency = 1
-LogoSub.Text = "M E N U"
-LogoSub.TextColor3 = Colors.TextDim
-LogoSub.Font = Enum.Font.GothamBold
-LogoSub.TextSize = isMobile and 8 or 10
-LogoSub.TextStrokeTransparency = 0.7
-LogoSub.TextStrokeColor3 = Color3.new(0, 0, 0)
-LogoSub.Parent = Sidebar
+task.spawn(function()
+    local success, customAsset = pcall(function()
+        local imgData = game:HttpGet("https://blob.stormapplications.com/blobs/1424256771610116136/6a1f97a6403c5983a2b56e86.png")
+        if writefile then
+            writefile("LyanMenu_Logo.png", imgData)
+            return (getcustomasset or getsynasset)("LyanMenu_Logo.png")
+        end
+        return nil
+    end)
+    if success and customAsset then
+        LogoImg.Image = customAsset
+    else
+        -- Fallback
+        local txt = Instance.new("TextLabel")
+        txt.Size = UDim2.new(1,0,1,0)
+        txt.BackgroundTransparency = 1
+        txt.Text = "SACRACIA"
+        txt.TextColor3 = Color3.fromRGB(255, 255, 255)
+        txt.Font = Enum.Font.GothamBlack
+        txt.TextSize = isMobile and 18 or 24
+        txt.Parent = LogoImg
+    end
+end)
 
 local TabContainer = Instance.new("Frame")
 TabContainer.Size = UDim2.new(1, 0, 1, -90)
@@ -1155,11 +1155,15 @@ local function createButton(parent, text, subtext, callback)
     stroke.Color = Colors.Border
     stroke.Thickness = 1
     btn.MouseEnter:Connect(function() TweenService:Create(btn, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(40, 35, 45)}):Play() TweenService:Create(stroke, TweenPresets.Fast, {Color = Colors.Accent}):Play() end)
-    btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenPresets.Fast, {BackgroundColor3 = Colors.SwitchBgOff}):Play() TweenService:Create(stroke, TweenPresets.Fast, {Color = Colors.Border}):Play() end)
+    btn.MouseLeave:Connect(function() TweenService:Create(btn, TweenPresets.Fast, {BackgroundColor3 = Colors.SwitchBgOff, Size = UDim2.new(0, 80, 0, 24)}):Play() TweenService:Create(stroke, TweenPresets.Fast, {Color = Colors.Border}):Play() end)
+    btn.MouseButton1Down:Connect(function()
+        TweenService:Create(btn, TweenPresets.Fast, {Size = UDim2.new(0, 76, 0, 22), BackgroundColor3 = Colors.Accent, TextColor3 = Color3.new(0,0,0)}):Play()
+    end)
+    btn.MouseButton1Up:Connect(function()
+        TweenService:Create(btn, TweenPresets.Fast, {Size = UDim2.new(0, 80, 0, 24), BackgroundColor3 = Color3.fromRGB(40, 35, 45), TextColor3 = Colors.TextDim}):Play()
+    end)
     btn.MouseButton1Click:Connect(function()
         if callback then callback() end
-        btn.BackgroundColor3 = Colors.Accent
-        TweenService:Create(btn, TweenPresets.Fast, {BackgroundColor3 = Colors.SwitchBgOff}):Play()
     end)
 end
 
@@ -1505,6 +1509,8 @@ local function createTab(pageName, targetPage)
         local targetY = btnWrapper.AbsolutePosition.Y - TabContainer.AbsolutePosition.Y + (btnWrapper.AbsoluteSize.Y/2) - (25/2)
         TweenService:Create(ActiveLine, TweenPresets.Pop, {Position = UDim2.new(1, -3, 0, targetY)}):Play()
     end)
+    btnWrapper.MouseButton1Down:Connect(function() TweenService:Create(titleLbl, TweenPresets.Fast, {TextSize = isMobile and 10 or 12}):Play() end)
+    btnWrapper.MouseButton1Up:Connect(function() TweenService:Create(titleLbl, TweenPresets.Pop, {TextSize = isMobile and 11 or 14}):Play() end)
     return btnWrapper
 end
 
@@ -1936,7 +1942,9 @@ btnSave.Parent = Cf1:FindFirstChild("Content") or Cf1
 -- Removed UICorner from btnSave
 btnSave.MouseButton1Click:Connect(function() saveConfig() showToast("Configuração", "Configurações Salvas!") end)
 btnSave.MouseEnter:Connect(function() TweenService:Create(btnSave, TweenPresets.Fast, {BackgroundColor3 = Colors.Accent, TextColor3 = Color3.new(0,0,0)}):Play() end)
-btnSave.MouseLeave:Connect(function() TweenService:Create(btnSave, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Colors.TextMain}):Play() end)
+btnSave.MouseLeave:Connect(function() TweenService:Create(btnSave, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Colors.TextMain, Size = UDim2.new(1, -20, 0, 30)}):Play() end)
+btnSave.MouseButton1Down:Connect(function() TweenService:Create(btnSave, TweenPresets.Fast, {Size = UDim2.new(1, -24, 0, 26)}):Play() end)
+btnSave.MouseButton1Up:Connect(function() TweenService:Create(btnSave, TweenPresets.Fast, {Size = UDim2.new(1, -20, 0, 30)}):Play() end)
 
 local btnLoad = Instance.new("TextButton")
 btnLoad.Size = UDim2.new(1, -20, 0, 30)
@@ -1950,7 +1958,9 @@ btnLoad.Parent = Cf1:FindFirstChild("Content") or Cf1
 -- Removed UICorner from btnLoad
 btnLoad.MouseButton1Click:Connect(function() loadConfig() showToast("Configuração", "Configurações Carregadas!") end)
 btnLoad.MouseEnter:Connect(function() TweenService:Create(btnLoad, TweenPresets.Fast, {BackgroundColor3 = Colors.Border}):Play() end)
-btnLoad.MouseLeave:Connect(function() TweenService:Create(btnLoad, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25)}):Play() end)
+btnLoad.MouseLeave:Connect(function() TweenService:Create(btnLoad, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25), Size = UDim2.new(1, -20, 0, 30)}):Play() end)
+btnLoad.MouseButton1Down:Connect(function() TweenService:Create(btnLoad, TweenPresets.Fast, {Size = UDim2.new(1, -24, 0, 26)}):Play() end)
+btnLoad.MouseButton1Up:Connect(function() TweenService:Create(btnLoad, TweenPresets.Fast, {Size = UDim2.new(1, -20, 0, 30)}):Play() end)
 
 local btnReset = Instance.new("TextButton")
 btnReset.Size = UDim2.new(1, -20, 0, 30)
@@ -1964,7 +1974,9 @@ btnReset.Parent = Cf1:FindFirstChild("Content") or Cf1
 -- Removed UICorner from btnReset
 btnReset.MouseButton1Click:Connect(function() resetConfig() showToast("Configuração", "Tudo foi resetado!") end)
 btnReset.MouseEnter:Connect(function() TweenService:Create(btnReset, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(239, 68, 68), TextColor3 = Color3.new(0,0,0)}):Play() end)
-btnReset.MouseLeave:Connect(function() TweenService:Create(btnReset, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Colors.TextMain}):Play() end)
+btnReset.MouseLeave:Connect(function() TweenService:Create(btnReset, TweenPresets.Fast, {BackgroundColor3 = Color3.fromRGB(25, 25, 25), TextColor3 = Colors.TextMain, Size = UDim2.new(1, -20, 0, 30)}):Play() end)
+btnReset.MouseButton1Down:Connect(function() TweenService:Create(btnReset, TweenPresets.Fast, {Size = UDim2.new(1, -24, 0, 26)}):Play() end)
+btnReset.MouseButton1Up:Connect(function() TweenService:Create(btnReset, TweenPresets.Fast, {Size = UDim2.new(1, -20, 0, 30)}):Play() end)
 
 -- Cf2: UTILITY
 local Cf2 = createPanel(PgConfig, "UTILITY & SERVER", UDim2.new(0.45, 0, 0, 480), UDim2.new(0.5, 0, 0.05, 0))
@@ -2037,6 +2049,8 @@ local function makeSubTabBtn(label, x)
     b.AutoButtonColor = false
     b.Parent = SubTabBar
     -- Removed UICorner from b (makeSubTabBtn)
+    b.MouseButton1Down:Connect(function() TweenService:Create(b, TweenPresets.Fast, {TextSize = 11}):Play() end)
+    b.MouseButton1Up:Connect(function() TweenService:Create(b, TweenPresets.Pop, {TextSize = 13}):Play() end)
     return b
 end
 local btnPlayers = makeSubTabBtn("PLAYERS", 0)
@@ -3795,14 +3809,33 @@ RunService.Heartbeat:Connect(function(dt)
                 if c:IsA("CylindricalConstraint") then c.InclinationAngle = 0 end
             end
         end
+        -- Prevent jumping out if AntiFall is on and we didn't press space
+        if Configs.AntiFall and not UserInputService:IsKeyDown(Enum.KeyCode.Space) then
+            -- Many games delete the SeatWeld when they want to throw you off. Let's enforce the SeatWeld.
+            local weld = seat:FindFirstChild("SeatWeld")
+            if not weld and hrp then
+                -- Recreate the weld instantly
+                local newWeld = Instance.new("Weld")
+                newWeld.Name = "SeatWeld"
+                newWeld.Part0 = seat
+                newWeld.Part1 = hrp
+                newWeld.C0 = CFrame.new(0, seat.Size.Y/2 + hrp.Size.Y/2, 0)
+                newWeld.Parent = seat
+            end
+        end
     else
-        -- Anti Fall logic
+        -- Anti Fall logic recovery
         if Configs.AntiFall and lastSeat and lastSeat.Parent and hum.Health > 0 and not UserInputService:IsKeyDown(Enum.KeyCode.Space) then
-            -- Se a pessoa não apertou espaço pra sair do carro (pulou de propósito)
-            -- e o lastSeat ainda existe (o carro não foi destruído), senta de novo
-            lastSeat:Sit(hum)
+            -- Fallback fallback: teleport exactly back and enforce weld
+            hrp.CFrame = lastSeat.CFrame * CFrame.new(0, lastSeat.Size.Y/2 + hrp.Size.Y/2, 0)
+            local newWeld = Instance.new("Weld")
+            newWeld.Name = "SeatWeld"
+            newWeld.Part0 = lastSeat
+            newWeld.Part1 = hrp
+            newWeld.C0 = CFrame.new(0, lastSeat.Size.Y/2 + hrp.Size.Y/2, 0)
+            newWeld.Parent = lastSeat
+            hum.Sit = true
         else
-            -- Se pulou ou o carro sumiu, limpa
             if not Configs.AntiFall or UserInputService:IsKeyDown(Enum.KeyCode.Space) then
                 lastSeat = nil
             end
