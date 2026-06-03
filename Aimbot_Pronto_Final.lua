@@ -1,4 +1,4 @@
--- [Core] LYAN MENU v6.0 | Ultimate Universal Mod Menu
+ï»¿-- [Core] LYAN MENU v6.0 | Ultimate Universal Mod Menu
 -- [Build] Solara Compatible | Precision Aimbot & Troll Functions
 
 -- ================================================================
@@ -1281,8 +1281,8 @@ createSlider(A1, "SUAVIDADE", 0.01, 1.0, "Smoothness")
 
 -- A2: title(30) + 6 switches(34*6=204) + padding(12*5=60) + margins = ~310
 local A2 = createPanel(PgAimbot, "AIMBOT AVANÃ‡ADO", UDim2.new(0.45, 0, 0, 310), UDim2.new(0.5, 0, 0.05, 0))
-createSwitch(A2, "MOVIMENTO DO MOUSE", "USAR MOUSE RELATIVO", "UseMouse")
-createSwitch(A2, "MIRAR EM MORTOS", "ALVEJAR MORTOS", "TargetDead")
+createSwitch(A2, "MOVIMENTO DO MOUSE (3A PESSOA)", "SUAVIZA CÃ‚MERA E MOUSE", "UseMouse")
+createSwitch(A2, "MOVIMENTO DO MOUSE (3A E PMB)", "SUAVIZA CÃ‚MERA E MOUSE", "UseMouse")
 createSwitch(A2, "AIMBOT PEGAJOSO", "SEGURAR ALVO ATUAL", "StickyAimbot")
 createSwitch(A2, "CHANCE DE ERRO", "ERROS FALSOS", "MissChance")
 createSwitch(A2, "SILENT AIM (MAGIA)", "TIRO VAI PRO ALVO SOZINHO", "SilentAim")
@@ -1290,20 +1290,20 @@ createSwitch(A2, "WALLBANG", "VARAR PAREDE COM TIROS", "Wallbang")
 
 -- A3: AIMBOT PRO
 local A3 = createPanel(PgAimbot, "AIMBOT PRO", UDim2.new(0.93, 0, 0, 240), UDim2.new(0.02, 0, 0, 380))
-createSwitch(A3, "PREDIÇÃO", "COMPENSAR VELOCIDADE DO ALVO", "AimPrediction")
-createSlider(A3, "FORÇA DA PREDIÇÃO", 0.05, 0.5, "PredictionStrength")
-createSwitch(A3, "WALLCHECK", "SÓ MIRAR EM VISÍVEIS", "AimWallCheck")
+createSwitch(A3, "PREDIï¿½ï¿½O", "COMPENSAR VELOCIDADE DO ALVO", "AimPrediction")
+createSlider(A3, "FORï¿½A DA PREDIï¿½ï¿½O", 0.05, 0.5, "PredictionStrength")
+createSwitch(A3, "WALLCHECK", "Sï¿½ MIRAR EM VISï¿½VEIS", "AimWallCheck")
 createSwitch(A3, "AUTO TROCAR ALVO", "TROCA AO PERDER VISTA/MORTE", "AutoSwitchTarget")
-createSwitch(A3, "PARTE DINÂMICA", "HEAD PEROA, TORSO LONGE", "DynamicPart")
+createSwitch(A3, "PARTE DINï¿½MICA", "HEAD PEROA, TORSO LONGE", "DynamicPart")
 
 -- Combat Tab
 -- C1: title(30) + 4 switches(34*4=136) + padding(12*3=36) + margins = ~230
 local C1 = createPanel(PgCombat, "MODS DE ARMA (EQUIPE PARA ATIVAR)", UDim2.new(0.45, 0, 0, 235), UDim2.new(0.02, 0, 0.05, 0))
 createSwitch(C1, "SEM RECUO", "0 RECUO", "NoRecoil")
 createSwitch(C1, "SEM RECUO", "0 RECUO", "NoRecoil")
-createSwitch(C1, "SEM DISPERSÃO", "TIRO RETO", "NoSpread")
-createSwitch(C1, "MUNIÇÃO INFINITA", "PENTE INFINITO", "InfiniteAmmo")
-createSwitch(C1, "TIRO AUTOMÃTICO", "SEGURAR CLIQUE", "FullAuto")
+createSwitch(C1, "SEM DISPERSï¿½O", "TIRO RETO", "NoSpread")
+createSwitch(C1, "MUNIï¿½ï¿½O INFINITA", "PENTE INFINITO", "InfiniteAmmo")
+createSwitch(C1, "TIRO AUTOMï¿½TICO", "SEGURAR CLIQUE", "FullAuto")
 -- C2: title(30) + 2 switches(34*2=68) + slider(40) + padding(12*2=24) + margins = ~200
 local C2 = createPanel(PgCombat, "ASSISTÃŠNCIA DE COMBATE", UDim2.new(0.45, 0, 0, 200), UDim2.new(0.5, 0, 0.05, 0))
 createSwitch(C2, "TRIGGERBOT", "ATIRAR AUTOMÃTICO", "TriggerBot")
@@ -1361,10 +1361,10 @@ local P3 = createPanel(PgExploits, "EXTRAS", UDim2.new(0.93, 0, 0, 520), UDim2.n
 createSwitch(P3, "ANTI AFK", "NUNCA KICK POR AFK", "AntiAfk")
 createSwitch(P3, "ANTI VOID", "VOLTA AO CAIR DO MAPA", "AntiVoid")
 createSwitch(P3, "SPIDER WALK", "ANDAR EM PAREDES", "SpiderWalk")
-createSwitch(P3, "AUTO BHOP", "PULA AO TOCAR CHÃO", "AutoBhop")
-createSwitch(P3, "DASH", "AVANÇO RÁPIDO COM TECLA", "Dash")
+createSwitch(P3, "AUTO BHOP", "PULA AO TOCAR CHï¿½O", "AutoBhop")
+createSwitch(P3, "DASH", "AVANï¿½O Rï¿½PIDO COM TECLA", "Dash")
 createHotkey(P3, "TECLA DO DASH", "DashKey")
-createSlider(P3, "FORÇA DO DASH", 50, 500, "DashForce")
+createSlider(P3, "FORï¿½A DO DASH", 50, 500, "DashForce")
 createSwitch(P3, "STAMINA INFINITA", "ZERA VALORES DE STAMINA", "StaminaBypass")
 createSwitch(P3, "MAG-NET", "PUXAR ITENS PRÃ“XIMOS", "MagNet")
 createSlider(P3, "RAIO DO MAG-NET", 5, 80, "MagNetRadius")
@@ -1605,7 +1605,7 @@ end)
 
 -- Config Tab
 -- Cf1: title(30) + hotkey(34) + dropdown(34) + padding(12*2=24) + save btn + load btn + margins
-local Cf1 = createPanel(PgConfig, "CONFIGURAÇÕES DO MENU", UDim2.new(0.45, 0, 0, 360), UDim2.new(0.02, 0, 0.05, 0))
+local Cf1 = createPanel(PgConfig, "CONFIGURAï¿½ï¿½ES DO MENU", UDim2.new(0.45, 0, 0, 360), UDim2.new(0.02, 0, 0.05, 0))
 createHotkey(Cf1, "TECLA DE ABRIR/FECHAR", "MenuKeybind")
 createDropdown(Cf1, "COR DE DESTAQUE", {"Vermelho", "Azul", "Verde", "Roxo", "Branco"}, "ThemeColor")
 
@@ -2403,7 +2403,7 @@ local function pickAimPart(char)
     return Configs.LockPart
 end
 local function getClosestPlayer()
-    local screenCenter = Vector2.new(Camera.ViewportSize.X / 2, Camera.ViewportSize.Y / 2)
+    local screenCenter = UserInputService:GetMouseLocation()
     if Configs.StickyAimbot and not Configs.AutoSwitchTarget and lastTarget and lastTarget.Character then
         local part = pickAimPart(lastTarget.Character)
         if lastTarget.Character:FindFirstChild(part) and lastTarget.Character:FindFirstChild("Humanoid") and lastTarget.Character.Humanoid.Health > 0 then
@@ -3677,6 +3677,7 @@ task.spawn(function()
         end
     end
 end)
+
 
 
 
