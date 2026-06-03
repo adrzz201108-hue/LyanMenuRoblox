@@ -629,7 +629,7 @@ LogoIcon.BackgroundTransparency = 1
 LogoIcon.Text = "< / >"
 LogoIcon.TextColor3 = Colors.Accent
 LogoIcon.Font = Enum.Font.Code
-LogoIcon.TextSize = 22
+LogoIcon.TextSize = 26
 LogoIcon.TextXAlignment = Enum.TextXAlignment.Left
 LogoIcon.Parent = Sidebar
 
@@ -641,7 +641,7 @@ LogoText.Text = "LYAN <font color='#666'>[6.0]</font>"
 LogoText.RichText = true
 LogoText.TextColor3 = Color3.fromRGB(255, 255, 255)
 LogoText.Font = Enum.Font.GothamBlack
-LogoText.TextSize = 16
+LogoText.TextSize = 18
 LogoText.TextXAlignment = Enum.TextXAlignment.Left
 LogoText.Parent = Sidebar
 
