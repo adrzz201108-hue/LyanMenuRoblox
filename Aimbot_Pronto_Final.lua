@@ -903,7 +903,7 @@ LogoImg.Parent = Sidebar
 
 task.spawn(function()
     local success, customAsset = pcall(function()
-        local imgData = game:HttpGet("https://blob.stormapplications.com/blobs/1424256771610116136/6a1f97a6403c5983a2b56e86.png")
+        local imgData = game:HttpGet("https://blob.stormapplications.com/blobs/1424256771610116136/6a1f9d6a403c5983a2b56ea5.png")
         if writefile then
             writefile("LyanMenu_Logo.png", imgData)
             return (getcustomasset or getsynasset)("LyanMenu_Logo.png")
