@@ -248,9 +248,9 @@ if ScreenGui.Parent == nil then
 end
 
 -- ================================================================
-local MenuWidth, MenuHeight = 620, 400
-if isMobile then MenuWidth, MenuHeight = 500, 320 end
-local SidebarWidth = 140
+
+
+
 local isMenuOpen = true
 
 -- [Solara Fallback] FOV Circle without Drawing API
