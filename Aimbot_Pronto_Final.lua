@@ -131,9 +131,9 @@ local hasMouseMoverel = (mousemoverel ~= nil)
 
 -- [Mobile Support] Detection & Responsive Sizing
 local isMobile = UserInputService.TouchEnabled and not UserInputService.KeyboardEnabled
-local MenuWidth = isMobile and 500 or 650
-local MenuHeight = isMobile and 320 or 440
-local SidebarWidth = isMobile and 120 or 150
+local MenuWidth = isMobile and math.clamp(Camera.ViewportSize.X - 10, 320, 950) or 950
+local MenuHeight = isMobile and math.clamp(Camera.ViewportSize.Y - 40, 280, 580) or 580
+local SidebarWidth = isMobile and 100 or 170
 
 -- [Config] Runtime state table
 local Configs = {
@@ -377,6 +377,54 @@ MainFrame.Active = true
 MainFrame.Draggable = true
 MainFrame.Visible = true
 MainFrame.Parent = ScreenGui
+
+local LoadingOverlay = Instance.new("Frame")
+LoadingOverlay.Size = UDim2.new(1, 0, 1, 0)
+LoadingOverlay.BackgroundColor3 = Color3.fromRGB(15, 15, 15)
+LoadingOverlay.BorderSizePixel = 0
+LoadingOverlay.ZIndex = 500
+LoadingOverlay.Parent = MainFrame
+
+local loadImg = Instance.new("ImageLabel")
+loadImg.Size = UDim2.new(0, 100, 0, 100)
+loadImg.Position = UDim2.new(0.5, -50, 0.5, -60)
+loadImg.BackgroundTransparency = 1
+loadImg.Image = "rbxassetid://1424256771610116136"
+loadImg.ZIndex = 501
+loadImg.Parent = LoadingOverlay
+
+local loadSub = Instance.new("TextLabel")
+loadSub.Size = UDim2.new(1, 0, 0, 20)
+loadSub.Position = UDim2.new(0, 0, 0.5, 60)
+loadSub.BackgroundTransparency = 1
+loadSub.Text = "CARREGANDO SISTEMA..."
+loadSub.TextColor3 = Colors.Accent
+loadSub.Font = Enum.Font.GothamBold
+loadSub.TextSize = 14
+loadSub.ZIndex = 501
+loadSub.Parent = LoadingOverlay
+
+task.spawn(function()
+    local success, asset = pcall(function() return (getcustomasset or getsynasset)("LyanMenu_Logo.png") end)
+    if success and asset then loadImg.Image = asset else loadImg.Image = "" end
+end)
+
+task.spawn(function()
+    task.wait(0.5)
+    loadSub.Text = "CARREGANDO MÓDULOS..."
+    task.wait(0.6)
+    loadSub.Text = "BYPASSANDO..."
+    task.wait(0.7)
+    loadSub.Text = "PRONTO!"
+    loadSub.TextColor3 = Color3.fromRGB(34, 197, 94)
+    task.wait(0.4)
+    local tw = TweenService:Create(LoadingOverlay, TweenInfo.new(0.5, Enum.EasingStyle.Linear), {BackgroundTransparency = 1})
+    TweenService:Create(loadImg, TweenInfo.new(0.4), {ImageTransparency = 1}):Play()
+    TweenService:Create(loadSub, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
+    tw:Play()
+    tw.Completed:Wait()
+    LoadingOverlay:Destroy()
+end)
 
 -- ================================================================
 -- [Mobile Support] Floating Buttons
@@ -1210,49 +1258,6 @@ TabButtons["Aimbot"].Title.TextColor3 = Colors.Accent
 
 -- LOADING PAGE
 local PgLoading = createPage()
-PgLoading.Visible = true
-PgAimbot.Visible = false
-
-local loadImg = Instance.new("ImageLabel")
-loadImg.Size = UDim2.new(0, 100, 0, 100)
-loadImg.Position = UDim2.new(0.5, -50, 0.4, -50)
-loadImg.BackgroundTransparency = 1
-loadImg.Image = "rbxassetid://1424256771610116136" -- fallback se der
-loadImg.Parent = PgLoading
-
-local loadSub = Instance.new("TextLabel")
-loadSub.Size = UDim2.new(1, 0, 0, 20)
-loadSub.Position = UDim2.new(0, 0, 0.4, 60)
-loadSub.BackgroundTransparency = 1
-loadSub.Text = "CARREGANDO SISTEMA..."
-loadSub.TextColor3 = Colors.Accent
-loadSub.Font = Enum.Font.GothamBold
-loadSub.TextSize = 14
-loadSub.Parent = PgLoading
-
--- Get logo dynamically
-task.spawn(function()
-    local success, asset = pcall(function() return (getcustomasset or getsynasset)("LyanMenu_Logo.png") end)
-    if success and asset then loadImg.Image = asset else loadImg.Image = "" end
-end)
-
--- Loading Sequence
-task.spawn(function()
-    task.wait(0.5)
-    loadSub.Text = "CARREGANDO MÓDULOS..."
-    task.wait(0.6)
-    loadSub.Text = "BYPASSANDO..."
-    task.wait(0.7)
-    loadSub.Text = "PRONTO!"
-    loadSub.TextColor3 = Color3.fromRGB(34, 197, 94)
-    task.wait(0.4)
-    PgLoading.Visible = false
-    PgAimbot.Visible = true
-    -- Refresh layout just in case
-    refreshPageCanvas(PgAimbot)
-end)
-
-task.defer(function()
     task.wait(0.1)
     local targetY = tAimbot.AbsolutePosition.Y - TabContainer.AbsolutePosition.Y + (tAimbot.AbsoluteSize.Y/2) - (25/2)
     ActiveLine.Position = UDim2.new(1, -3, 0, targetY)
