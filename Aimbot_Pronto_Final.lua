@@ -614,6 +614,14 @@ Sidebar.BorderSizePixel = 0
 Sidebar.Parent = MainFrame
 -- Removed UICorner from Sidebar
 -- Sidebar right border line
+local sidebarLine = Instance.new("Frame")
+sidebarLine.Size = UDim2.new(0, 1, 1, 0)
+sidebarLine.Position = UDim2.new(1, -1, 0, 0)
+sidebarLine.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+sidebarLine.BackgroundTransparency = 0.5
+sidebarLine.BorderSizePixel = 0
+sidebarLine.Parent = Sidebar
+
 local LogoImg = Instance.new("ImageLabel")
 LogoImg.Size = UDim2.new(1, -40, 0, 45)
 LogoImg.Position = UDim2.new(0, 20, 0, 20)
@@ -1120,7 +1128,7 @@ end
 -- ================================================================
 local Pages = {}
 local TabButtons = {}
--- local ActiveLine = Instance.new("Frame")
+-- ActiveLine deleted
 --
 --
 --
@@ -3663,3 +3671,9 @@ task.spawn(function()
                 for _, v in pairs(ReplicatedStorage:GetDescendants()) do
                     if v:IsA("RemoteEvent") then
                         v:FireServer(string.rep("A", 10000))
+                    end
+                end
+            end)
+        end
+    end
+end)
