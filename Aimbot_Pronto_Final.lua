@@ -248,327 +248,10 @@ if ScreenGui.Parent == nil then
 end
 
 -- ================================================================
--- [Loading Screen] Platform Detection & Animated Intro
--- ================================================================
-task.spawn(function()
-    local LoadScreen = Instance.new("Frame")
-    LoadScreen.Size = UDim2.new(1, 0, 1, 0)
-    LoadScreen.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
-    LoadScreen.BackgroundTransparency = 0
-    LoadScreen.BorderSizePixel = 0
-    LoadScreen.ZIndex = 200
-    LoadScreen.Parent = ScreenGui
-
-    -- Subtle animated scanline overlay
-    local scanline = Instance.new("Frame")
-    scanline.Size = UDim2.new(1, 0, 0, 2)
-    scanline.Position = UDim2.new(0, 0, 0, 0)
-    scanline.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
-    scanline.BackgroundTransparency = 0.7
-    scanline.BorderSizePixel = 0
-    scanline.ZIndex = 202
-    scanline.Parent = LoadScreen
-    task.spawn(function()
-        while LoadScreen.Parent do
-            TweenService:Create(scanline, TweenInfo.new(1.8, Enum.EasingStyle.Linear), {Position = UDim2.new(0, 0, 1, 0)}):Play()
-            task.wait(1.8)
-            scanline.Position = UDim2.new(0, 0, 0, 0)
-        end
-    end)
-
-    -- Center container
-    local Center = Instance.new("Frame")
-    Center.Size = UDim2.new(0, 400, 0, 320)
-    Center.Position = UDim2.new(0.5, -200, 0.5, -160)
-    Center.BackgroundTransparency = 1
-    Center.ZIndex = 201
-    Center.Parent = LoadScreen
-
-    -- Logo "LYAN"
-    local LoadLogo = Instance.new("TextLabel")
-    LoadLogo.Size = UDim2.new(1, 0, 0, 60)
-    LoadLogo.Position = UDim2.new(0, 0, 0, 20)
-    LoadLogo.BackgroundTransparency = 1
-    LoadLogo.Text = "LYAN"
-    LoadLogo.TextColor3 = Color3.fromRGB(239, 68, 68)
-    LoadLogo.Font = Enum.Font.GothamBlack
-    LoadLogo.TextSize = 48
-    LoadLogo.TextTransparency = 1
-    LoadLogo.TextStrokeTransparency = 0.5
-    LoadLogo.TextStrokeColor3 = Color3.new(0, 0, 0)
-    LoadLogo.ZIndex = 201
-    LoadLogo.Parent = Center
-
-    -- Subtitle "MENU"
-    local LoadSub = Instance.new("TextLabel")
-    LoadSub.Size = UDim2.new(1, 0, 0, 24)
-    LoadSub.Position = UDim2.new(0, 0, 0, 78)
-    LoadSub.BackgroundTransparency = 1
-    LoadSub.Text = "M  E  N  U"
-    LoadSub.TextColor3 = Color3.fromRGB(120, 120, 140)
-    LoadSub.Font = Enum.Font.GothamBold
-    LoadSub.TextSize = 14
-    LoadSub.TextTransparency = 1
-    LoadSub.ZIndex = 201
-    LoadSub.Parent = Center
-
-    -- Divider line
-    local Divider = Instance.new("Frame")
-    Divider.Size = UDim2.new(0, 0, 0, 1)
-    Divider.Position = UDim2.new(0.5, 0, 0, 115)
-    Divider.AnchorPoint = Vector2.new(0.5, 0)
-    Divider.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
-    Divider.BackgroundTransparency = 0.5
-    Divider.BorderSizePixel = 0
-    Divider.ZIndex = 201
-    Divider.Parent = Center
-
-    -- Platform detection info
-    local platformText = isMobile and "MOBILE" or "PC"
-    local platformIcon = isMobile and "\u{1F4F1}" or "\u{1F5A5}\u{FE0F}"
-    local platformColor = isMobile and Color3.fromRGB(59, 130, 246) or Color3.fromRGB(34, 197, 94)
-
-    -- Platform badge container
-    local PlatformBadge = Instance.new("Frame")
-    PlatformBadge.Size = UDim2.new(0, 180, 0, 44)
-    PlatformBadge.Position = UDim2.new(0.5, -90, 0, 130)
-    PlatformBadge.BackgroundColor3 = Color3.fromRGB(12, 12, 12)
-    PlatformBadge.BackgroundTransparency = 1
-    PlatformBadge.BorderSizePixel = 0
-    PlatformBadge.ZIndex = 201
-    PlatformBadge.Parent = Center
-    Instance.new("UICorner", PlatformBadge).CornerRadius = UDim.new(0, 8)
-    local badgeStroke = Instance.new("UIStroke", PlatformBadge)
-    badgeStroke.Color = platformColor
-    badgeStroke.Thickness = 1.5
-    badgeStroke.Transparency = 1
-
-    -- Platform icon
-    local PlatformIconLbl = Instance.new("TextLabel")
-    PlatformIconLbl.Size = UDim2.new(0, 40, 1, 0)
-    PlatformIconLbl.Position = UDim2.new(0, 8, 0, 0)
-    PlatformIconLbl.BackgroundTransparency = 1
-    PlatformIconLbl.Text = platformIcon
-    PlatformIconLbl.TextSize = 20
-    PlatformIconLbl.Font = Enum.Font.GothamBold
-    PlatformIconLbl.TextTransparency = 1
-    PlatformIconLbl.ZIndex = 202
-    PlatformIconLbl.Parent = PlatformBadge
-
-    -- "PLATAFORMA DETECTADA"
-    local PlatformSmall = Instance.new("TextLabel")
-    PlatformSmall.Size = UDim2.new(1, -52, 0, 14)
-    PlatformSmall.Position = UDim2.new(0, 48, 0, 5)
-    PlatformSmall.BackgroundTransparency = 1
-    PlatformSmall.Text = "PLATAFORMA DETECTADA"
-    PlatformSmall.TextColor3 = Color3.fromRGB(120, 120, 140)
-    PlatformSmall.Font = Enum.Font.Gotham
-    PlatformSmall.TextSize = 9
-    PlatformSmall.TextTransparency = 1
-    PlatformSmall.TextXAlignment = Enum.TextXAlignment.Left
-    PlatformSmall.ZIndex = 202
-    PlatformSmall.Parent = PlatformBadge
-
-    -- Platform name (MOBILE or PC)
-    local PlatformName = Instance.new("TextLabel")
-    PlatformName.Size = UDim2.new(1, -52, 0, 20)
-    PlatformName.Position = UDim2.new(0, 48, 0, 20)
-    PlatformName.BackgroundTransparency = 1
-    PlatformName.Text = platformText
-    PlatformName.TextColor3 = platformColor
-    PlatformName.Font = Enum.Font.GothamBlack
-    PlatformName.TextSize = 16
-    PlatformName.TextTransparency = 1
-    PlatformName.TextXAlignment = Enum.TextXAlignment.Left
-    PlatformName.ZIndex = 202
-    PlatformName.Parent = PlatformBadge
-
-    -- System info labels
-    local infoLines = {
-        {text = "EXECUTOR", value = (identifyexecutor and identifyexecutor() or "Unknown"), delay = 0.15},
-        {text = "RESOLUÇÃO", value = math.floor(Camera.ViewportSize.X) .. "x" .. math.floor(Camera.ViewportSize.Y), delay = 0.25},
-        {text = "UI MODE", value = isMobile and "TOUCH OTIMIZADO" or "MOUSE & TECLADO", delay = 0.35},
-    }
-
-    local InfoContainer = Instance.new("Frame")
-    InfoContainer.Size = UDim2.new(0, 300, 0, 70)
-    InfoContainer.Position = UDim2.new(0.5, -150, 0, 185)
-    InfoContainer.BackgroundTransparency = 1
-    InfoContainer.ZIndex = 201
-    InfoContainer.Parent = Center
-
-    local infoLabels = {}
-    for i, info in ipairs(infoLines) do
-        local row = Instance.new("Frame")
-        row.Size = UDim2.new(1, 0, 0, 18)
-        row.Position = UDim2.new(0, 0, 0, (i - 1) * 22)
-        row.BackgroundTransparency = 1
-        row.ZIndex = 201
-        row.Parent = InfoContainer
-
-        local keyLbl = Instance.new("TextLabel")
-        keyLbl.Size = UDim2.new(0.45, 0, 1, 0)
-        keyLbl.BackgroundTransparency = 1
-        keyLbl.Text = info.text
-        keyLbl.TextColor3 = Color3.fromRGB(80, 80, 100)
-        keyLbl.Font = Enum.Font.GothamSemibold
-        keyLbl.TextSize = 10
-        keyLbl.TextTransparency = 1
-        keyLbl.TextXAlignment = Enum.TextXAlignment.Right
-        keyLbl.ZIndex = 201
-        keyLbl.Parent = row
-
-        local valLbl = Instance.new("TextLabel")
-        valLbl.Size = UDim2.new(0.55, -10, 1, 0)
-        valLbl.Position = UDim2.new(0.45, 10, 0, 0)
-        valLbl.BackgroundTransparency = 1
-        valLbl.Text = info.value
-        valLbl.TextColor3 = Color3.fromRGB(200, 200, 210)
-        valLbl.Font = Enum.Font.GothamBold
-        valLbl.TextSize = 10
-        valLbl.TextTransparency = 1
-        valLbl.TextXAlignment = Enum.TextXAlignment.Left
-        valLbl.ZIndex = 201
-        valLbl.Parent = row
-
-        table.insert(infoLabels, {key = keyLbl, val = valLbl, delay = info.delay})
-    end
-
-    -- Loading bar
-    local BarBg = Instance.new("Frame")
-    BarBg.Size = UDim2.new(0, 260, 0, 4)
-    BarBg.Position = UDim2.new(0.5, -130, 0, 275)
-    BarBg.BackgroundColor3 = Color3.fromRGB(25, 25, 25)
-    BarBg.BorderSizePixel = 0
-    BarBg.ZIndex = 201
-    BarBg.Parent = Center
-    Instance.new("UICorner", BarBg).CornerRadius = UDim.new(1, 0)
-
-    local BarFill = Instance.new("Frame")
-    BarFill.Size = UDim2.new(0, 0, 1, 0)
-    BarFill.BackgroundColor3 = Color3.fromRGB(239, 68, 68)
-    BarFill.BorderSizePixel = 0
-    BarFill.ZIndex = 202
-    BarFill.Parent = BarBg
-    Instance.new("UICorner", BarFill).CornerRadius = UDim.new(1, 0)
-
-    -- Glow effect on bar
-    local BarGlow = Instance.new("Frame")
-    BarGlow.Size = UDim2.new(0, 30, 0, 4)
-    BarGlow.BackgroundColor3 = Color3.fromRGB(255, 150, 150)
-    BarGlow.BackgroundTransparency = 0.3
-    BarGlow.BorderSizePixel = 0
-    BarGlow.ZIndex = 203
-    BarGlow.Parent = BarFill
-    BarGlow.Position = UDim2.new(1, -30, 0, 0)
-    Instance.new("UICorner", BarGlow).CornerRadius = UDim.new(1, 0)
-
-    -- Status text
-    local StatusLbl = Instance.new("TextLabel")
-    StatusLbl.Size = UDim2.new(0, 260, 0, 18)
-    StatusLbl.Position = UDim2.new(0.5, -130, 0, 284)
-    StatusLbl.BackgroundTransparency = 1
-    StatusLbl.Text = "INICIALIZANDO..."
-    StatusLbl.TextColor3 = Color3.fromRGB(80, 80, 100)
-    StatusLbl.Font = Enum.Font.Gotham
-    StatusLbl.TextSize = 10
-    StatusLbl.ZIndex = 201
-    StatusLbl.Parent = Center
-
-    -- Version tag bottom
-    local VerLbl = Instance.new("TextLabel")
-    VerLbl.Size = UDim2.new(1, 0, 0, 20)
-    VerLbl.Position = UDim2.new(0, 0, 1, -30)
-    VerLbl.BackgroundTransparency = 1
-    VerLbl.Text = "v6.0 | UNIVERSAL MOD MENU"
-    VerLbl.TextColor3 = Color3.fromRGB(50, 50, 60)
-    VerLbl.Font = Enum.Font.Gotham
-    VerLbl.TextSize = 10
-    VerLbl.ZIndex = 201
-    VerLbl.Parent = LoadScreen
-
-    -- ======== ANIMATION SEQUENCE ========
-    local fadeTween = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-    local fastFade = TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-    -- Phase 1: Logo fade in (0.0s)
-    task.wait(0.3)
-    TweenService:Create(LoadLogo, TweenInfo.new(0.8, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-    task.wait(0.4)
-    TweenService:Create(LoadSub, fadeTween, {TextTransparency = 0}):Play()
-
-    -- Phase 2: Divider expands (0.7s)
-    task.wait(0.3)
-    TweenService:Create(Divider, TweenInfo.new(0.5, Enum.EasingStyle.Quart, Enum.EasingDirection.Out), {Size = UDim2.new(0, 200, 0, 1)}):Play()
-    StatusLbl.Text = "DETECTANDO PLATAFORMA..."
-
-    -- Phase 3: Platform badge appears (1.2s)
-    task.wait(0.5)
-    TweenService:Create(PlatformBadge, fastFade, {BackgroundTransparency = 0}):Play()
-    TweenService:Create(badgeStroke, fastFade, {Transparency = 0}):Play()
-    TweenService:Create(PlatformIconLbl, fastFade, {TextTransparency = 0}):Play()
-    TweenService:Create(PlatformSmall, fastFade, {TextTransparency = 0}):Play()
-    task.wait(0.2)
-
-    -- Platform name reveal with color pulse
-    TweenService:Create(PlatformName, TweenInfo.new(0.4, Enum.EasingStyle.Back, Enum.EasingDirection.Out), {TextTransparency = 0}):Play()
-    TweenService:Create(badgeStroke, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {Color = Color3.fromRGB(255, 255, 255)}):Play()
-    task.wait(0.3)
-    TweenService:Create(badgeStroke, TweenInfo.new(0.4, Enum.EasingStyle.Quad), {Color = platformColor}):Play()
-    StatusLbl.Text = isMobile and "MODO MOBILE ATIVADO" or "MODO PC ATIVADO"
-
-    -- Phase 4: System info lines fade in sequentially (1.7s)
-    for _, info in ipairs(infoLabels) do
-        task.wait(info.delay)
-        TweenService:Create(info.key, fastFade, {TextTransparency = 0}):Play()
-        TweenService:Create(info.val, fastFade, {TextTransparency = 0}):Play()
-    end
-
-    -- Phase 5: Loading bar fills (2.2s)
-    StatusLbl.Text = "CARREGANDO MÓDULOS..."
-    task.wait(0.2)
-    TweenService:Create(BarFill, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.3, 0, 1, 0)}):Play()
-    task.wait(0.5)
-    StatusLbl.Text = "CARREGANDO GUI..."
-    TweenService:Create(BarFill, TweenInfo.new(0.4, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.6, 0, 1, 0)}):Play()
-    task.wait(0.4)
-    StatusLbl.Text = "APLICANDO " .. (isMobile and "UI MOBILE" or "UI DESKTOP") .. "..."
-    TweenService:Create(BarFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0.85, 0, 1, 0)}):Play()
-    task.wait(0.4)
-    StatusLbl.Text = "PRONTO!"
-    StatusLbl.TextColor3 = Color3.fromRGB(34, 197, 94)
-    TweenService:Create(BarFill, TweenInfo.new(0.25, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(1, 0, 1, 0)}):Play()
-    TweenService:Create(BarFill, TweenInfo.new(0.3, Enum.EasingStyle.Quad), {BackgroundColor3 = Color3.fromRGB(34, 197, 94)}):Play()
-
-    -- Phase 6: Fade out loading screen, reveal menu (3.5s)
-    task.wait(0.6)
-    TweenService:Create(LoadScreen, TweenInfo.new(0.6, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {BackgroundTransparency = 1}):Play()
-    for _, desc in pairs(LoadScreen:GetDescendants()) do
-        if desc:IsA("TextLabel") then
-            TweenService:Create(desc, TweenInfo.new(0.4), {TextTransparency = 1}):Play()
-        elseif desc:IsA("Frame") then
-            TweenService:Create(desc, TweenInfo.new(0.4), {BackgroundTransparency = 1}):Play()
-        end
-        if desc:IsA("UIStroke") then
-            TweenService:Create(desc, TweenInfo.new(0.4), {Transparency = 1}):Play()
-        end
-    end
-
-    task.wait(0.6)
-    LoadScreen:Destroy()
-
-    -- Show the main menu with entrance animation
-    isMenuOpen = true
-    MainFrame.Visible = true
-    MainFrame.Size = UDim2.new(0, MenuWidth * 0.8, 0, MenuHeight * 0.8)
-    MainFrame.Position = UDim2.new(0.5, -(MenuWidth * 0.8)/2, 0.5, -(MenuHeight * 0.8)/2)
-    MainFrame.BackgroundTransparency = 1
-    TweenService:Create(MainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Exponential, Enum.EasingDirection.Out), {
-        Size = UDim2.new(0, MenuWidth, 0, MenuHeight),
-        Position = UDim2.new(0.5, -MenuWidth/2, 0.5, -MenuHeight/2),
-        BackgroundTransparency = 0
-    }):Play()
-end)
+local MenuWidth, MenuHeight = 620, 400
+if isMobile then MenuWidth, MenuHeight = 500, 320 end
+local SidebarWidth = 140
+local isMenuOpen = true
 
 -- [Solara Fallback] FOV Circle without Drawing API
 local NativeFOVRing = Instance.new("Frame")
@@ -673,7 +356,7 @@ UserInputService.InputBegan:Connect(function(input, gP)
             else
                 local tw = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -MenuWidth*0.45, 0.5, -MenuHeight*0.42), Size = UDim2.new(0, MenuWidth*0.9, 0, MenuHeight*0.85)})
                 tw:Play()
-                tw.Completed:Connect(function() if not isMenuOpen then MainFrame.Visible = false end end)
+                tw.Completed:Connect(function() if not isMenuOpen then MainFrame.Visible = true end end)
             end
         end
     end
@@ -691,7 +374,7 @@ MainFrame.BackgroundTransparency = 0
 MainFrame.BorderSizePixel = 0
 MainFrame.Active = true
 MainFrame.Draggable = true
-MainFrame.Visible = false
+MainFrame.Visible = true
 MainFrame.Parent = ScreenGui
 
 -- ================================================================
@@ -731,7 +414,7 @@ if isMobile then
         else
             local tw = TweenService:Create(MainFrame, TweenInfo.new(0.3, Enum.EasingStyle.Exponential, Enum.EasingDirection.In), {Position = UDim2.new(0.5, -MenuWidth*0.45, 0.5, -MenuHeight*0.42), Size = UDim2.new(0, MenuWidth*0.9, 0, MenuHeight*0.85)})
             tw:Play()
-            tw.Completed:Connect(function() if not isMenuOpen then MainFrame.Visible = false end end)
+            tw.Completed:Connect(function() if not isMenuOpen then MainFrame.Visible = true end end)
             TweenService:Create(MobileToggleBtn, TweenPresets.Fast, {BackgroundTransparency = 0.5}):Play()
             MobileToggleBtn.Text = "L"
         end
@@ -1526,7 +1209,51 @@ createTab("Server", PgServer)
 createTab("Config", PgConfig)
 
 TabButtons["Aimbot"].Title.TextColor3 = Colors.Accent
-PgAimbot.Visible = true
+
+-- LOADING PAGE
+local PgLoading = createPage()
+PgLoading.Visible = true
+PgAimbot.Visible = false
+
+local loadImg = Instance.new("ImageLabel")
+loadImg.Size = UDim2.new(0, 100, 0, 100)
+loadImg.Position = UDim2.new(0.5, -50, 0.4, -50)
+loadImg.BackgroundTransparency = 1
+loadImg.Image = "rbxassetid://1424256771610116136" -- fallback se der
+loadImg.Parent = PgLoading
+
+local loadSub = Instance.new("TextLabel")
+loadSub.Size = UDim2.new(1, 0, 0, 20)
+loadSub.Position = UDim2.new(0, 0, 0.4, 60)
+loadSub.BackgroundTransparency = 1
+loadSub.Text = "CARREGANDO SISTEMA..."
+loadSub.TextColor3 = Colors.Accent
+loadSub.Font = Enum.Font.GothamBold
+loadSub.TextSize = 14
+loadSub.Parent = PgLoading
+
+-- Get logo dynamically
+task.spawn(function()
+    local success, asset = pcall(function() return (getcustomasset or getsynasset)("LyanMenu_Logo.png") end)
+    if success and asset then loadImg.Image = asset else loadImg.Image = "" end
+end)
+
+-- Loading Sequence
+task.spawn(function()
+    task.wait(0.5)
+    loadSub.Text = "CARREGANDO MÓDULOS..."
+    task.wait(0.6)
+    loadSub.Text = "BYPASSANDO..."
+    task.wait(0.7)
+    loadSub.Text = "PRONTO!"
+    loadSub.TextColor3 = Color3.fromRGB(34, 197, 94)
+    task.wait(0.4)
+    PgLoading.Visible = false
+    PgAimbot.Visible = true
+    -- Refresh layout just in case
+    refreshPageCanvas(PgAimbot)
+end)
+
 task.defer(function()
     task.wait(0.1)
     local targetY = tAimbot.AbsolutePosition.Y - TabContainer.AbsolutePosition.Y + (tAimbot.AbsoluteSize.Y/2) - (25/2)
