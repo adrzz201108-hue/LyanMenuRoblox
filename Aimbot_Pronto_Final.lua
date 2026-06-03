@@ -1256,12 +1256,11 @@ createTab("Config", PgConfig)
 
 TabButtons["Aimbot"].Title.TextColor3 = Colors.Accent
 
--- LOADING PAGE
-local PgLoading = createPage()
+-- INITIALIZE FIRST TAB ACTIVE STATE
+task.defer(function()
     task.wait(0.1)
     local targetY = tAimbot.AbsolutePosition.Y - TabContainer.AbsolutePosition.Y + (tAimbot.AbsoluteSize.Y/2) - (25/2)
     ActiveLine.Position = UDim2.new(1, -3, 0, targetY)
-    -- Refresh canvas size for all pages
     for _, pg in pairs(AllPages) do refreshPageCanvas(pg) end
 end)
 
