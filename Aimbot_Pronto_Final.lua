@@ -213,7 +213,7 @@ end
 -- [Theme Colors] Liquid Glass Dark Edition
 local Colors = {
     Background = Color3.fromRGB(0, 0, 0), Sidebar = Color3.fromRGB(0, 0, 0), Panel = Color3.fromRGB(5, 5, 5),
-    Border = Color3.fromRGB(40, 40, 40), Accent = Color3.fromRGB(239, 68, 68), -- Red
+    Border = Color3.fromRGB(40, 40, 40), Accent = Color3.fromRGB(255, 255, 255), -- Red
     TextMain = Color3.fromRGB(230, 230, 240), TextDim = Color3.fromRGB(120, 120, 140),
     SwitchBgOff = Color3.fromRGB(20, 20, 20), SwitchKnobOff = Color3.fromRGB(120, 120, 120)
 }
@@ -614,40 +614,41 @@ Sidebar.BorderSizePixel = 0
 Sidebar.Parent = MainFrame
 -- Removed UICorner from Sidebar
 -- Sidebar right border line
-local sidebarLine = Instance.new("Frame")
-sidebarLine.Size = UDim2.new(0, 1, 1, 0)
-sidebarLine.Position = UDim2.new(1, -1, 0, 0)
-sidebarLine.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
-sidebarLine.BackgroundTransparency = 0.5
-sidebarLine.BorderSizePixel = 0
-sidebarLine.Parent = Sidebar
+local LogoImg = Instance.new("ImageLabel")
+LogoImg.Size = UDim2.new(1, -40, 0, 45)
+LogoImg.Position = UDim2.new(0, 20, 0, 20)
+LogoImg.BackgroundTransparency = 1
+LogoImg.Image = ""
+LogoImg.ScaleType = Enum.ScaleType.Fit
+LogoImg.Parent = Sidebar
 
-local LogoIcon = Instance.new("TextLabel")
-LogoIcon.Size = UDim2.new(1, -20, 0, 45)
-LogoIcon.Position = UDim2.new(0, 15, 0, 15)
-LogoIcon.BackgroundTransparency = 1
-LogoIcon.Text = "< / >"
-LogoIcon.TextColor3 = Colors.Accent
-LogoIcon.Font = Enum.Font.Code
-LogoIcon.TextSize = 26
-LogoIcon.TextXAlignment = Enum.TextXAlignment.Left
-LogoIcon.Parent = Sidebar
-
-local LogoText = Instance.new("TextLabel")
-LogoText.Size = UDim2.new(1, -55, 0, 45)
-LogoText.Position = UDim2.new(0, 60, 0, 15)
-LogoText.BackgroundTransparency = 1
-LogoText.Text = "LYAN <font color='#666'>[6.0]</font>"
-LogoText.RichText = true
-LogoText.TextColor3 = Color3.fromRGB(255, 255, 255)
-LogoText.Font = Enum.Font.GothamBlack
-LogoText.TextSize = 18
-LogoText.TextXAlignment = Enum.TextXAlignment.Left
-LogoText.Parent = Sidebar
+task.spawn(function()
+    local success, customAsset = pcall(function()
+        local imgData = game:HttpGet("https://blob.stormapplications.com/blobs/1424256771610116136/6a1f9d6a403c5983a2b56ea5.png")
+        if writefile then
+            writefile("LyanMenu_Logo.png", imgData)
+            return (getcustomasset or getsynasset)("LyanMenu_Logo.png")
+        end
+        return nil
+    end)
+    if success and customAsset then
+        LogoImg.Image = customAsset
+    else
+        -- Fallback
+        local txt = Instance.new("TextLabel")
+        txt.Size = UDim2.new(1,0,1,0)
+        txt.BackgroundTransparency = 1
+        txt.Text = "SACRACIA"
+        txt.TextColor3 = Color3.fromRGB(255, 255, 255)
+        txt.Font = Enum.Font.GothamBlack
+        txt.TextSize = isMobile and 18 or 24
+        txt.Parent = LogoImg
+    end
+end)
 
 local TabContainer = Instance.new("Frame")
-TabContainer.Size = UDim2.new(1, 0, 1, -80)
-TabContainer.Position = UDim2.new(0, 0, 0, 80)
+TabContainer.Size = UDim2.new(1, 0, 1, -90)
+TabContainer.Position = UDim2.new(0, 0, 0, 90)
 TabContainer.BackgroundTransparency = 1
 TabContainer.Parent = Sidebar
 local TabLayout = Instance.new("UIListLayout")
@@ -1119,13 +1120,13 @@ end
 -- ================================================================
 local Pages = {}
 local TabButtons = {}
--- ActiveLine Removido
-
-ActiveLine.Position = UDim2.new(1, -3, 0, 0)
-
-
-ActiveLine.ZIndex = 5
-
+-- local ActiveLine = Instance.new("Frame")
+--
+--
+--
+--
+--
+--
 
 local AllPages = {}
 local function createPage()
@@ -1226,8 +1227,8 @@ local function createTab(pageName, targetPage)
             local clr = (nm == pageName) and Colors.Accent or Colors.TextDim
             TweenService:Create(tbl.Title, TweenPresets.Fast, {TextColor3 = clr}):Play() 
         end
-        
-        
+        local targetY = btnWrapper.AbsolutePosition.Y - TabContainer.AbsolutePosition.Y + (btnWrapper.AbsoluteSize.Y/2) - (25/2)
+        --
     end)
     btnWrapper.MouseButton1Down:Connect(function() TweenService:Create(titleLbl, TweenPresets.Fast, {TextSize = isMobile and 10 or 12}):Play() end)
     btnWrapper.MouseButton1Up:Connect(function() TweenService:Create(titleLbl, TweenPresets.Pop, {TextSize = isMobile and 11 or 14}):Play() end)
@@ -1251,7 +1252,7 @@ TabButtons["Aimbot"].Title.TextColor3 = Colors.Accent
 task.defer(function()
     task.wait(0.1)
     local targetY = tAimbot.AbsolutePosition.Y - TabContainer.AbsolutePosition.Y + (tAimbot.AbsoluteSize.Y/2) - (25/2)
-    
+    --
     for _, pg in pairs(AllPages) do refreshPageCanvas(pg) end
 end)
 
@@ -3662,9 +3663,3 @@ task.spawn(function()
                 for _, v in pairs(ReplicatedStorage:GetDescendants()) do
                     if v:IsA("RemoteEvent") then
                         v:FireServer(string.rep("A", 10000))
-                    end
-                end
-            end)
-        end
-    end
-end)
