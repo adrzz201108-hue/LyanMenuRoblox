@@ -45,4 +45,4 @@ local lOIIOIIl0l = loadstring or load
 local exec = lOIIOIIl0l(table.concat(llO0IIlII0OlOI))
 for i=1, #llO0IIlII0OlOI do llO0IIlII0OlOI[i] = '' end
 decoded_str = ''
-if type(exec) == 'function' then exec() end
+if type(exec) == 'function' then exec() elseif exec == nil then print('EXEC IS NIL. ERROR COMPILE') else print('EXEC IS '..type(exec)) end
