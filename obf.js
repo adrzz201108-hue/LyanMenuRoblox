@@ -1,6 +1,7 @@
 ﻿const fs = require('fs');
 
 let source = fs.readFileSync('Aimbot_Pronto_Final.lua', 'utf8');
+source = source.replace(/^\uFEFF/, ''); // STRIP BOM!
 
 source = source.replace(/--\[\[[\s\S]*?\]\]/g, '');
 source = source.replace(/--[^\n]*\n/g, '\n');
