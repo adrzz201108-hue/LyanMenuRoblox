@@ -2,105 +2,36 @@
 
 let source = fs.readFileSync('Aimbot_Pronto_Final.lua', 'utf8');
 
-// Minify & Strip Comments
 source = source.replace(/--\[\[[\s\S]*?\]\]/g, '');
 source = source.replace(/--[^\n]*\n/g, '\n');
 
-// Generator for misleading variable names (e.g. O0IlIlI0)
 function R(len) {
     let chars = "O0Il";
-    let s = chars[Math.floor(Math.random()*2)+2]; // start with 'I' or 'l'
+    let s = chars[Math.floor(Math.random()*2)+2]; 
     for(let i=1;i<len;i++) s+= chars[Math.floor(Math.random()*chars.length)];
     return s;
 }
 
-let key1 = "LYAN_PRIME_" + Math.random().toString(36).substring(2);
-let enc1 = [];
+let key = "LYAN_PRIME_" + Math.random().toString(36).substring(2);
+let enc = [];
 for(let i=0; i<source.length; i++) {
-    let charCode = source.charCodeAt(i);
-    let keyChar = key1.charCodeAt(i % key1.length);
-    let shifted = (charCode ^ keyChar) + 42; 
-    enc1.push(shifted);
+    enc.push((source.charCodeAt(i) ^ key.charCodeAt(i % key.length)));
 }
 
-let v_env = R(14), v_load = R(12), v_key = R(15), v_enc = R(16), v_res = R(11), v_chr = R(10), v_xor = R(13), v_idx = R(10);
-let v_origp = R(13), v_exe = R(11);
+let b64 = Buffer.from(enc).toString('base64');
 
-let layer1 = "";
-layer1 += "local " + v_env + " = getfenv or function() return _ENV end\n";
-layer1 += "local " + v_load + " = " + v_env + "().loadstring or " + v_env + "().load\n";
-layer1 += "local " + v_chr + " = " + v_env + "().string.char\n";
-layer1 += "local " + v_xor + " = " + v_env + "().bit32 and " + v_env + "().bit32.bxor or " + v_env + "().bit and " + v_env + "().bit.bxor\n";
-
-layer1 += "if not " + v_xor + " then\n";
-layer1 += "    " + v_xor + " = function(a,b)\n";
-layer1 += "        local p,c=1,0\n";
-layer1 += "        while a>0 or b>0 do\n";
-layer1 += "            local ra,rb=a%2,b%2\n";
-layer1 += "            if ra~=rb then c=c+p end\n";
-layer1 += "            a,b,p=(a-ra)/2,(b-rb)/2,p*2\n";
-layer1 += "        end\n";
-layer1 += "        return c\n";
-layer1 += "    end\n";
-layer1 += "end\n";
-
-layer1 += "local " + v_key + " = '" + key1 + "'\n";
-layer1 += "local " + v_enc + " = {" + enc1.join(",") + "}\n";
-layer1 += "local " + v_res + " = {}\n";
-
-layer1 += "for " + v_idx + " = 1, #" + v_enc + " do\n";
-layer1 += "    local b = " + v_enc + "[" + v_idx + "] - 42\n";
-layer1 += "    local k = " + v_env + "().string.byte(" + v_key + ", ((" + v_idx + " - 1) % #" + v_key + ") + 1)\n";
-layer1 += "    " + v_res + "[" + v_idx + "] = " + v_chr + "(" + v_xor + "(b, k))\n";
-layer1 += "end\n";
-
-layer1 += "(function(...)\n";
-layer1 += "    local " + v_origp + " = " + v_env + "().print\n";
-layer1 += "    " + v_env + "().print = function() end\n";
-layer1 += "    local " + v_exe + " = " + v_load + "(" + v_env + "().table.concat(...))\n";
-layer1 += "    for i=1, #... do (...)[i] = '' end\n";
-layer1 += "    " + v_env + "().print = " + v_origp + "\n";
-layer1 += "    if type(" + v_exe + ") == 'function' then " + v_exe + "() end\n";
-layer1 += "end)(" + v_res + ")\n";
-
-let enc2 = [];
-let shiftMap = [];
-for(let i=0; i<layer1.length; i++) {
-    let shift = Math.floor(Math.random() * 20) + 1;
-    enc2.push(layer1.charCodeAt(i) + shift);
-    shiftMap.push(shift);
-}
-
-let v_t2 = R(16), v_s2 = R(15), v_r2 = R(14), v_i2 = R(13), v_f2 = R(12);
-
-let layer2 = "";
-layer2 += "local " + v_t2 + " = {" + enc2.join(",") + "}\n";
-layer2 += "local " + v_s2 + " = {" + shiftMap.join(",") + "}\n";
-layer2 += "local " + v_r2 + " = {}\n";
-layer2 += "for " + v_i2 + " = 1, #" + v_t2 + " do\n";
-layer2 += "    " + v_r2 + "[" + v_i2 + "] = string.char(" + v_t2 + "[" + v_i2 + "] - " + v_s2 + "[" + v_i2 + "])\n";
-layer2 += "end\n";
-layer2 += "local " + v_f2 + " = loadstring or load\n";
-layer2 += v_f2 + "(table.concat(" + v_r2 + "))()\n";
-
-let lines = layer2.split('\n');
-let layer3 = "";
-for(let i=0; i<lines.length; i++) {
-    layer3 += lines[i] + '\n';
-    if (lines[i].trim() !== "" && Math.random() > 0.5) {
-        let junkVar = R(10);
-        let op = Math.floor(Math.random() * 3);
-        if (op === 0) layer3 += "local " + junkVar + " = " + Math.floor(Math.random()*1000) + " + " + Math.floor(Math.random()*1000) + "\n";
-        else if (op === 1) layer3 += "local " + junkVar + " = '" + R(8) + "'\n";
-        else layer3 += "local " + junkVar + " = function() return " + Math.floor(Math.random()*1000) + " end\n";
-    }
-}
-
-let b64 = Buffer.from(layer3, 'utf8').toString('base64');
 let v_b64 = R(14), v_dec = R(15), v_d = R(10), v_b = R(10), v_x = R(10);
+let v_key = R(12), v_idx = R(11), v_xor = R(13), v_res = R(14), v_char = R(10), v_load = R(10);
 
-let final_code = "-- LyanMenu v6.0 | MAXIMUM SECURITY (LyanCipher V3 + Polymorphic Enc)\n";
+let final_code = "-- LyanMenu v6.0 | LyanCipher V4 (Optimized for Solara/Mobile)\n";
+
+for(let i=0;i<5;i++) {
+    final_code += "local " + R(10) + " = " + Math.floor(Math.random() * 1000) + "\n";
+}
+
 final_code += "local " + v_b64 + " = '" + b64 + "'\n";
+final_code += "local " + v_key + " = '" + key + "'\n";
+
 final_code += "local function " + v_dec + "(" + v_d + ")\n";
 final_code += "    local " + v_b + "='ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/'\n";
 final_code += "    " + v_d + "=string.gsub(" + v_d + ",'[^'.." + v_b + "..'=]','')\n";
@@ -116,7 +47,35 @@ final_code += "        for i=1,8 do c=c+(" + v_x + ":sub(i,i)=='1' and 2^(8-i) o
 final_code += "        return string.char(c)\n";
 final_code += "    end))\n";
 final_code += "end\n";
-final_code += "local _e = loadstring or load\n";
-final_code += "_e(" + v_dec + "(" + v_b64 + "))()\n";
+
+final_code += "local " + v_xor + " = bit32 and bit32.bxor or bit and bit.bxor\n";
+final_code += "if not " + v_xor + " then\n";
+final_code += "    " + v_xor + " = function(a,b)\n";
+final_code += "        local p,c=1,0\n";
+final_code += "        while a>0 or b>0 do\n";
+final_code += "            local ra,rb=a%2,b%2\n";
+final_code += "            if ra~=rb then c=c+p end\n";
+final_code += "            a,b,p=(a-ra)/2,(b-rb)/2,p*2\n";
+final_code += "        end\n";
+final_code += "        return c\n";
+final_code += "    end\n";
+final_code += "end\n";
+
+final_code += "local " + v_res + " = {}\n";
+final_code += "local " + v_char + " = string.char\n";
+final_code += "local decoded_str = " + v_dec + "(" + v_b64 + ")\n";
+final_code += "for " + v_idx + " = 1, #decoded_str do\n";
+final_code += "    local b = string.byte(decoded_str, " + v_idx + ")\n";
+final_code += "    local k = string.byte(" + v_key + ", ((" + v_idx + " - 1) % #" + v_key + ") + 1)\n";
+final_code += "    " + v_res + "[" + v_idx + "] = " + v_char + "(" + v_xor + "(b, k))\n";
+final_code += "end\n";
+
+final_code += "local " + v_load + " = loadstring or load\n";
+final_code += "local exec = " + v_load + "(table.concat(" + v_res + "))\n";
+
+final_code += "for i=1, #" + v_res + " do " + v_res + "[i] = '' end\n";
+final_code += "decoded_str = ''\n"; 
+
+final_code += "if type(exec) == 'function' then exec() end\n";
 
 fs.writeFileSync('LyanMenu.lua', final_code);
