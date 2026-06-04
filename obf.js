@@ -9,12 +9,11 @@ source = source.replace(/--[^\n]*\n/g, '\n');
 // Generator for misleading variable names (e.g. O0IlIlI0)
 function R(len) {
     let chars = "O0Il";
-    let s = chars[Math.floor(Math.random()*2)+2]; // start with 'I' or 'l' to be valid Lua variables
+    let s = chars[Math.floor(Math.random()*2)+2]; // start with 'I' or 'l'
     for(let i=1;i<len;i++) s+= chars[Math.floor(Math.random()*chars.length)];
     return s;
 }
 
-// LAYER 1: Core Encryption (XOR + Arbitrary Byte Shift)
 let key1 = "LYAN_PRIME_" + Math.random().toString(36).substring(2);
 let enc1 = [];
 for(let i=0; i<source.length; i++) {
@@ -24,16 +23,13 @@ for(let i=0; i<source.length; i++) {
     enc1.push(shifted);
 }
 
-// Variable Mapping for Layer 1
 let v_env = R(14), v_load = R(12), v_key = R(15), v_enc = R(16), v_res = R(11), v_chr = R(10), v_xor = R(13), v_idx = R(10);
-let v_pcall = R(12), v_safe = R(10), v_crash = R(14), v_strrep = R(15), v_origp = R(13), v_exe = R(11);
+let v_origp = R(13), v_exe = R(11);
 
 let layer1 = "";
 layer1 += "local " + v_env + " = getfenv or function() return _ENV end\n";
 layer1 += "local " + v_load + " = " + v_env + "().loadstring or " + v_env + "().load\n";
-layer1 += "local " + v_pcall + " = " + v_env + "().pcall\n";
 layer1 += "local " + v_chr + " = " + v_env + "().string.char\n";
-layer1 += "local " + v_strrep + " = " + v_env + "().string.rep\n";
 layer1 += "local " + v_xor + " = " + v_env + "().bit32 and " + v_env + "().bit32.bxor or " + v_env + "().bit and " + v_env + "().bit.bxor\n";
 
 layer1 += "if not " + v_xor + " then\n";
@@ -47,21 +43,6 @@ layer1 += "        end\n";
 layer1 += "        return c\n";
 layer1 += "    end\n";
 layer1 += "end\n";
-
-layer1 += "local function " + v_safe + "()\n";
-layer1 += "    local s = true\n";
-layer1 += "    if " + v_env + "().iscclosure and not " + v_env + "().iscclosure(" + v_load + ") then s = false end\n";
-layer1 += "    if " + v_env + "().ishooked and " + v_env + "().ishooked(" + v_load + ") then s = false end\n";
-layer1 += "    if " + v_env + "().debug and " + v_env + "().debug.getinfo then\n";
-layer1 += "        local i = " + v_env + "().debug.getinfo(" + v_load + ")\n";
-layer1 += "        if i and i.what ~= 'C' then s = false end\n";
-layer1 += "    end\n";
-layer1 += "    if not s then\n";
-layer1 += "        local " + v_crash + " = {}\n";
-layer1 += "        while true do table.insert(" + v_crash + ", " + v_strrep + "('LYAN_CRASH', 99999)) end\n";
-layer1 += "    end\n";
-layer1 += "end\n";
-layer1 += v_pcall + "(" + v_safe + ")\n";
 
 layer1 += "local " + v_key + " = '" + key1 + "'\n";
 layer1 += "local " + v_enc + " = {" + enc1.join(",") + "}\n";
@@ -82,7 +63,6 @@ layer1 += "    " + v_env + "().print = " + v_origp + "\n";
 layer1 += "    if type(" + v_exe + ") == 'function' then " + v_exe + "() end\n";
 layer1 += "end)(" + v_res + ")\n";
 
-// LAYER 2: Dynamic Byte Shifting Arrays
 let enc2 = [];
 let shiftMap = [];
 for(let i=0; i<layer1.length; i++) {
@@ -103,7 +83,6 @@ layer2 += "end\n";
 layer2 += "local " + v_f2 + " = loadstring or load\n";
 layer2 += v_f2 + "(table.concat(" + v_r2 + "))()\n";
 
-// LAYER 3: Junk Code Injection & Control Flow Confusion
 let lines = layer2.split('\n');
 let layer3 = "";
 for(let i=0; i<lines.length; i++) {
@@ -117,7 +96,6 @@ for(let i=0; i<lines.length; i++) {
     }
 }
 
-// LAYER 4: Polymorphic Base64 Wrap
 let b64 = Buffer.from(layer3, 'utf8').toString('base64');
 let v_b64 = R(14), v_dec = R(15), v_d = R(10), v_b = R(10), v_x = R(10);
 
